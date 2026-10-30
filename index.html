@@ -297,7 +297,7 @@
             >
           </div>
         </div>
-        <!-- auto sync banner -->
+
         <!-- Automatic Completion Sync Banner -->
         <div
           class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-300/80 rounded-2xl p-4 text-xs text-emerald-950 flex items-center justify-between gap-3 shadow-sm"
@@ -856,6 +856,27 @@
               >
             </div>
           </div>
+        </div>
+
+        <!-- Automatic Completion Sync Banner -->
+        <div
+          class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-300/80 rounded-2xl p-4 text-xs text-emerald-950 flex items-center justify-between gap-3 shadow-sm"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"
+            ></div>
+            <span class="leading-relaxed">
+              <strong>Automatic Completion Sync Active:</strong> Important
+              academic events on past dates are automatically marked as
+              completed in real time.
+            </span>
+          </div>
+          <span
+            class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-200/80 border border-emerald-300 rounded-lg shrink-0"
+          >
+            Auto Synced
+          </span>
         </div>
 
         <!-- Category Filter Buttons -->
@@ -1663,6 +1684,7 @@
       const ACADEMIC_EVENTS = [
         {
           id: "evt-1",
+          dateStr: "2026-10-27",
           dateDisplay: "Oct 27, 2026",
           dayName: "Tue",
           category: "ACADEMIC",
@@ -1671,6 +1693,7 @@
         },
         {
           id: "evt-2",
+          dateStr: "2026-10-31",
           dateDisplay: "Oct 31, 2026",
           dayName: "Sat",
           category: "ACADEMIC",
@@ -1679,6 +1702,7 @@
         },
         {
           id: "evt-3",
+          dateStr: "2026-11-04",
           dateDisplay: "Nov 4, 2026",
           dayName: "Wed",
           category: "ACADEMIC",
@@ -1687,6 +1711,7 @@
         },
         {
           id: "evt-4",
+          dateStr: "2026-11-07",
           dateDisplay: "Nov 7, 2026",
           dayName: "Sat",
           category: "HOLIDAY",
@@ -1695,6 +1720,7 @@
         },
         {
           id: "evt-5",
+          dateStr: "2026-11-08",
           dateDisplay: "Nov 8, 2026",
           dayName: "Sun",
           category: "ACADEMIC",
@@ -1703,6 +1729,7 @@
         },
         {
           id: "evt-6",
+          dateStr: "2026-11-09",
           dateDisplay: "Nov 9, 2026",
           dayName: "Mon",
           category: "ACADEMIC",
@@ -1711,6 +1738,7 @@
         },
         {
           id: "evt-7",
+          dateStr: "2026-11-22",
           dateDisplay: "Nov 22, 2026",
           dayName: "Sun",
           category: "PAYMENT",
@@ -1719,6 +1747,7 @@
         },
         {
           id: "evt-8",
+          dateStr: "2026-12-05",
           dateDisplay: "Dec 5 – Dec 12, 2026",
           dayName: "Sat - Sat",
           category: "EXAM",
@@ -1727,6 +1756,7 @@
         },
         {
           id: "evt-9",
+          dateStr: "2026-12-15",
           dateDisplay: "Dec 15, 2026",
           dayName: "Tue",
           category: "PAYMENT",
@@ -1735,6 +1765,7 @@
         },
         {
           id: "evt-10",
+          dateStr: "2026-12-16",
           dateDisplay: "Dec 16, 2026",
           dayName: "Wed",
           category: "HOLIDAY",
@@ -1743,6 +1774,7 @@
         },
         {
           id: "evt-11",
+          dateStr: "2026-12-23",
           dateDisplay: "Dec 23, 2026",
           dayName: "Wed",
           category: "ACADEMIC",
@@ -1751,6 +1783,7 @@
         },
         {
           id: "evt-12",
+          dateStr: "2026-12-25",
           dateDisplay: "Dec 25, 2026",
           dayName: "Fri",
           category: "HOLIDAY",
@@ -1759,6 +1792,7 @@
         },
         {
           id: "evt-13",
+          dateStr: "2027-01-13",
           dateDisplay: "Jan 13, 2027",
           dayName: "Wed",
           category: "PAYMENT",
@@ -1767,6 +1801,7 @@
         },
         {
           id: "evt-14",
+          dateStr: "2027-01-21",
           dateDisplay: "Jan 21 – Jan 24, 2027",
           dayName: "Thu - Sun",
           category: "ACADEMIC",
@@ -1775,6 +1810,7 @@
         },
         {
           id: "evt-15",
+          dateStr: "2027-01-24",
           dateDisplay: "Jan 24, 2027",
           dayName: "Sun",
           category: "HOLIDAY",
@@ -1783,6 +1819,7 @@
         },
         {
           id: "evt-16",
+          dateStr: "2027-01-25",
           dateDisplay: "Jan 25 – Feb 1, 2027",
           dayName: "Mon - Mon",
           category: "EXAM",
@@ -1791,6 +1828,7 @@
         },
         {
           id: "evt-17",
+          dateStr: "2027-02-04",
           dateDisplay: "Feb 4, 2027",
           dayName: "Thu",
           category: "ACADEMIC",
@@ -2950,6 +2988,18 @@
           classDate.setHours(0, 0, 0, 0);
           if (classDate < today && !completedClasses.has(c.id)) {
             completedClasses.add(c.id);
+            stateChanged = true;
+          }
+        });
+
+        // Auto-mark past academic events as completed
+        ACADEMIC_EVENTS.forEach((evt) => {
+          if (!evt.dateStr) return;
+          const evtDate = new Date(evt.dateStr);
+          evtDate.setHours(0, 0, 0, 0);
+
+          if (evtDate < today && !completedEvents.has(evt.id)) {
+            completedEvents.add(evt.id);
             stateChanged = true;
           }
         });
