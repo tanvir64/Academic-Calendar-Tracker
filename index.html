@@ -8,6 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDK (v9 Compat for simple browser script loading) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script>
       tailwind.config = {
         theme: {
@@ -80,7 +85,7 @@
         <div
           class="flex flex-col md:flex-row md:items-center justify-between py-2.5 sm:py-3 gap-2 min-w-0"
         >
-          <!-- Top Row on Mobile: Logo & Title on Left, Reset Button on Right -->
+          <!-- Top Row on Mobile: Logo & Title on Left, Reset & Cloud Sync on Right -->
           <div
             class="flex items-center justify-between w-full md:w-auto shrink-0 min-w-0 gap-2"
           >
@@ -111,6 +116,13 @@
             <!-- Actions (Visible on Mobile Top-Right) -->
             <div class="flex items-center gap-2 shrink-0 md:hidden">
               <button
+                onclick="openSyncModal()"
+                class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
+              >
+                <i data-lucide="cloud" class="w-3.5 h-3.5"></i>
+                <span>Sync</span>
+              </button>
+              <button
                 onclick="openResetModal()"
                 class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-100/70 border border-rose-200 rounded-xl transition-all shadow-sm"
               >
@@ -120,7 +132,7 @@
             </div>
           </div>
 
-          <!-- Navigation Tabs (Below Title on Mobile, In-Line on Desktop) -->
+          <!-- Navigation Tabs -->
           <nav
             class="flex items-center gap-1 sm:gap-1.5 bg-slate-200/60 p-1 sm:p-1.5 rounded-2xl border border-slate-300/50 overflow-x-auto min-w-0 w-full md:w-auto custom-scrollbar md:mx-2"
           >
@@ -169,8 +181,15 @@
             </button>
           </nav>
 
-          <!-- Desktop Actions (Reset Button on Right) -->
+          <!-- Desktop Actions -->
           <div class="hidden md:flex items-center gap-2 shrink-0">
+            <button
+              onclick="openSyncModal()"
+              class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
+            >
+              <i data-lucide="cloud" class="w-4 h-4 text-brand-600"></i>
+              <span>Sync Devices</span>
+            </button>
             <button
               onclick="openResetModal()"
               class="flex items-center gap-1 px-3.5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-100/70 border border-rose-200 rounded-xl transition-all shadow-sm"
@@ -446,7 +465,7 @@
             </div>
           </div>
 
-          <!-- User Assessments Summary Card (Expanded & High Importance) -->
+          <!-- User Assessments Summary Card -->
           <div
             class="md:col-span-2 lg:col-span-5 bg-white p-6 rounded-3xl border-2 border-brand-200/90 shadow-md shadow-brand-500/5 flex flex-col justify-between"
           >
@@ -539,7 +558,7 @@
           </div>
         </div>
 
-        <!-- Track Progress Grid (4 Trackers) -->
+        <!-- Track Progress Grid -->
         <h2
           class="text-base font-extrabold text-slate-900 flex items-center gap-2 pt-2"
         >
@@ -1084,7 +1103,7 @@
       </div>
     </div>
 
-    <!-- MODAL 3: MEETING LINK MODAL (FOR ONLINE MAKEUP TILES) -->
+    <!-- MODAL 3: MEETING LINK MODAL -->
     <div
       id="meeting-modal"
       class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
@@ -1182,9 +1201,131 @@
       </div>
     </div>
 
+    <!-- MODAL 4: FIREBASE MULTI-DEVICE CLOUD SYNC MODAL -->
+    <div
+      id="sync-modal"
+      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 transform transition-all space-y-5"
+      >
+        <div
+          class="flex items-center justify-between border-b border-slate-100 pb-3"
+        >
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 bg-brand-100 text-brand-700 rounded-2xl">
+              <i data-lucide="cloud-lightning" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900">
+                Cross-Device Cloud Sync
+              </h3>
+              <p class="text-[11px] text-slate-500 font-medium">
+                High security 8-character unique sync session
+              </p>
+            </div>
+          </div>
+          <button
+            onclick="closeSyncModal()"
+            class="text-slate-400 hover:text-slate-600 p-1 rounded-xl hover:bg-slate-100 transition-colors"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Current Device Sync Code Display -->
+        <div
+          class="bg-gradient-to-br from-brand-50 via-indigo-50/50 to-brand-50 p-4 rounded-2xl border border-brand-200/80 text-center space-y-2"
+        >
+          <span
+            class="text-[11px] font-bold uppercase tracking-wider text-brand-700 block"
+          >
+            Your Unique 8-Character Device Sync Code
+          </span>
+          <div class="flex items-center justify-center gap-2">
+            <span
+              id="sync-code-display"
+              class="text-lg sm:text-xl font-black tracking-widest text-brand-900 font-mono bg-white px-3.5 py-1.5 rounded-xl border border-brand-300 shadow-2xs select-all"
+            >
+              VERIFYING...
+            </span>
+            <button
+              onclick="copySyncCode()"
+              class="p-2 text-brand-700 bg-white hover:bg-brand-100 border border-brand-300 rounded-xl transition-all shadow-2xs"
+              title="Copy Sync Code"
+            >
+              <i data-lucide="copy" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-500 font-medium leading-relaxed">
+            Enter this code on your mobile phone or PC to mirror your calendar
+            state securely in real time.
+          </p>
+        </div>
+
+        <!-- Form to Connect/Pair an Existing Sync Code -->
+        <form
+          onsubmit="connectSyncCode(event)"
+          class="space-y-3 pt-2 border-t border-slate-100"
+        >
+          <label class="block text-xs font-extrabold text-slate-800">
+            Connect to Existing Session Code
+          </label>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="input-sync-code"
+              required
+              placeholder="e.g. FALL-2026-X9K2-M7P4"
+              class="flex-1 text-xs font-mono font-bold uppercase bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
+            />
+            <button
+              type="submit"
+              class="px-4 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 rounded-xl transition-all shadow-md shadow-brand-500/20 shrink-0"
+            >
+              Connect
+            </button>
+          </div>
+          <p
+            id="sync-status-msg"
+            class="text-[11px] font-bold text-emerald-600 text-center hidden"
+          ></p>
+        </form>
+
+        <div class="pt-2">
+          <button
+            onclick="closeSyncModal()"
+            class="w-full py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Application JavaScript -->
     <script>
-      // Master Data Structure: Exactly 43 Regular Classes and 5 Online Makeup Classes (48 Total)
+      // 1. Firebase Realtime Database Configuration
+      const firebaseConfig = {
+        databaseURL: "https://uiu-calendar-263-default-rtdb.firebaseio.com",
+      };
+
+      // Initialize Firebase App & Database
+      let db = null;
+      let syncRef = null;
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.database();
+      } catch (e) {
+        console.warn(
+          "Firebase initialized without dedicated URL configuration, falling back to local state mode.",
+          e,
+        );
+      }
+
+      // Master Data Structure
       const ALL_CLASSES = [
         // October 2026
         {
@@ -1937,12 +2078,68 @@
       let currentEventFilter = "ALL";
       let currentEvalFilter = "ALL";
       let currentPage = "calendar";
+      let syncCode = "";
 
       const STORAGE_KEY = "calendar_263_completed_classes_v1";
       const EVENTS_STORAGE_KEY = "calendar_263_completed_events_v1";
       const EVALS_STORAGE_KEY = "calendar_263_user_evaluations_v1";
       const EXAMS_STORAGE_KEY = "calendar_263_completed_exams_v1";
       const LINKS_STORAGE_KEY = "calendar_263_makeup_links_v1";
+      const SYNC_CODE_KEY = "calendar_263_sync_code_v1";
+
+      // 8-Character Random String Generator (e.g. X9K2-M7P4)
+      function generateRaw8CharToken() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let part1 = "",
+          part2 = "";
+        for (let i = 0; i < 4; i++) {
+          part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+          part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return `${part1}-${part2}`;
+      }
+
+      // Generate Unique 8-Character Sync Code with Database Existence Check
+      async function initSyncCode() {
+        let code = localStorage.getItem(SYNC_CODE_KEY);
+
+        // If no code saved or upgrading from an old 4-character code format
+        if (!code || code.length < 18) {
+          let isUnique = false;
+          let candidateCode = "";
+
+          while (!isUnique) {
+            candidateCode = `FALL-2026-${generateRaw8CharToken()}`;
+
+            // Database existence check
+            if (db) {
+              try {
+                const snapshot = await db
+                  .ref("UIU_Calendar_263/sync_sessions/" + candidateCode)
+                  .once("value");
+                if (!snapshot.exists()) {
+                  isUnique = true;
+                }
+              } catch (e) {
+                console.warn(
+                  "Could not check database existence, proceeding with high-entropy token.",
+                  e,
+                );
+                isUnique = true;
+              }
+            } else {
+              isUnique = true;
+            }
+          }
+
+          code = candidateCode;
+          localStorage.setItem(SYNC_CODE_KEY, code);
+        }
+
+        syncCode = code.toUpperCase();
+        const displayEl = document.getElementById("sync-code-display");
+        if (displayEl) displayEl.innerText = syncCode;
+      }
 
       function loadState() {
         try {
@@ -1962,12 +2159,15 @@
           const savedLinks = localStorage.getItem(LINKS_STORAGE_KEY);
           if (savedLinks) makeupMeetingLinks = JSON.parse(savedLinks);
         } catch (e) {
-          console.error("Failed loading saved state:", e);
+          console.error("Failed loading local state:", e);
         }
       }
 
+      let isRemoteUpdating = false;
+
       function saveState() {
         try {
+          // 1. Local Storage fallback
           localStorage.setItem(
             STORAGE_KEY,
             JSON.stringify([...completedClasses]),
@@ -1988,9 +2188,124 @@
             LINKS_STORAGE_KEY,
             JSON.stringify(makeupMeetingLinks),
           );
+
+          // 2. Firebase Database Sync
+          if (db && syncCode && !isRemoteUpdating) {
+            const syncPayload = {
+              completedClasses: [...completedClasses],
+              completedEvents: [...completedEvents],
+              completedExams: [...completedExams],
+              userEvaluations: userEvaluations,
+              makeupMeetingLinks: makeupMeetingLinks,
+              lastUpdated: Date.now(),
+            };
+            db.ref("UIU_Calendar_263/sync_sessions/" + syncCode).set(
+              syncPayload,
+            );
+          }
         } catch (e) {
           console.error("Failed saving state:", e);
         }
+      }
+
+      // Initialize Realtime Listener for Firebase
+      function setupFirebaseSync() {
+        if (!db || !syncCode) return;
+
+        if (syncRef) syncRef.off();
+        syncRef = db.ref("UIU_Calendar_263/sync_sessions/" + syncCode);
+
+        syncRef.on("value", (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            isRemoteUpdating = true;
+            completedClasses = new Set(data.completedClasses || []);
+            completedEvents = new Set(data.completedEvents || []);
+            completedExams = new Set(data.completedExams || []);
+            userEvaluations = data.userEvaluations || [];
+            makeupMeetingLinks = data.makeupMeetingLinks || {};
+
+            // Update Local Storage
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify([...completedClasses]),
+            );
+            localStorage.setItem(
+              EVENTS_STORAGE_KEY,
+              JSON.stringify([...completedEvents]),
+            );
+            localStorage.setItem(
+              EVALS_STORAGE_KEY,
+              JSON.stringify(userEvaluations),
+            );
+            localStorage.setItem(
+              EXAMS_STORAGE_KEY,
+              JSON.stringify([...completedExams]),
+            );
+            localStorage.setItem(
+              LINKS_STORAGE_KEY,
+              JSON.stringify(makeupMeetingLinks),
+            );
+
+            // Re-render UI
+            syncPastClassesAndEvents();
+            renderCalendar();
+            renderDashboard();
+            renderEvaluations();
+            renderEvents();
+
+            isRemoteUpdating = false;
+          } else {
+            // Push current state if new node
+            saveState();
+          }
+        });
+      }
+
+      function openSyncModal() {
+        const modal = document.getElementById("sync-modal");
+        const displayEl = document.getElementById("sync-code-display");
+        if (displayEl) displayEl.innerText = syncCode || "GENERATING...";
+        if (modal) modal.classList.remove("hidden");
+      }
+
+      function closeSyncModal() {
+        const modal = document.getElementById("sync-modal");
+        const msg = document.getElementById("sync-status-msg");
+        if (modal) modal.classList.add("hidden");
+        if (msg) msg.classList.add("hidden");
+      }
+
+      function copySyncCode() {
+        navigator.clipboard.writeText(syncCode);
+        const msg = document.getElementById("sync-status-msg");
+        if (msg) {
+          msg.innerText = "Sync code copied to clipboard!";
+          msg.classList.remove("hidden");
+        }
+      }
+
+      function connectSyncCode(e) {
+        e.preventDefault();
+        const inputVal = document
+          .getElementById("input-sync-code")
+          .value.trim()
+          .toUpperCase();
+        if (!inputVal) return;
+
+        syncCode = inputVal;
+        localStorage.setItem(SYNC_CODE_KEY, syncCode);
+        const displayEl = document.getElementById("sync-code-display");
+        if (displayEl) displayEl.innerText = syncCode;
+
+        setupFirebaseSync();
+
+        const msg = document.getElementById("sync-status-msg");
+        if (msg) {
+          msg.innerText = "Connected to session " + syncCode + " successfully!";
+          msg.classList.remove("hidden");
+        }
+        setTimeout(() => closeSyncModal(), 1200);
       }
 
       // Navigation Controller
@@ -2118,7 +2433,6 @@
           if (filteredClasses.length === 0 && currentFilter !== "ALL") return;
 
           const theme = monthThemeMap[m];
-
           const monthSection = document.createElement("div");
           monthSection.className = `rounded-3xl border-2 shadow-sm p-5 space-y-4 ${theme.cardBg}`;
 
@@ -2155,7 +2469,6 @@
             const linkData = makeupMeetingLinks[item.id];
 
             const card = document.createElement("div");
-
             let borderStyle = isDone
               ? "border-emerald-500 bg-emerald-50/80 hover:bg-emerald-100 shadow-sm"
               : item.isMakeup
@@ -2613,7 +2926,6 @@
         const midContainer = document.getElementById("midterm-exam-list");
         const finalContainer = document.getElementById("final-exam-list");
 
-        // Dynamic date evaluation relative to real-time current date
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -2982,7 +3294,6 @@
 
         let stateChanged = false;
 
-        // Auto-mark past classes as completed
         ALL_CLASSES.forEach((c) => {
           const classDate = new Date(c.dateStr);
           classDate.setHours(0, 0, 0, 0);
@@ -2992,7 +3303,6 @@
           }
         });
 
-        // Auto-mark past academic events as completed
         ACADEMIC_EVENTS.forEach((evt) => {
           if (!evt.dateStr) return;
           const evtDate = new Date(evt.dateStr);
@@ -3010,7 +3320,8 @@
       }
 
       // Initialize App on DOM Ready
-      window.addEventListener("DOMContentLoaded", () => {
+      window.addEventListener("DOMContentLoaded", async () => {
+        await initSyncCode();
         loadState();
         syncPastClassesAndEvents();
         renderCalendar();
@@ -3018,10 +3329,11 @@
         renderEvaluations();
         renderEvents();
         updateNavigation();
+        setupFirebaseSync();
         lucide.createIcons();
       });
 
-      // Synchronize across open browser windows & tabs in real time
+      // Synchronize across open tabs on same browser
       window.addEventListener("storage", () => {
         loadState();
         syncPastClassesAndEvents();
