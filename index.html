@@ -297,6 +297,27 @@
             >
           </div>
         </div>
+        <!-- auto sync banner -->
+        <!-- Automatic Completion Sync Banner -->
+        <div
+          class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-300/80 rounded-2xl p-4 text-xs text-emerald-950 flex items-center justify-between gap-3 shadow-sm"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"
+            ></div>
+            <span class="leading-relaxed">
+              <strong>Automatic Completion Sync Active:</strong> All class dates
+              that have already passed are automatically marked as completed in
+              real time. You don't need to manually check past dates!
+            </span>
+          </div>
+          <span
+            class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-200/80 border border-emerald-300 rounded-lg shrink-0"
+          >
+            Auto Synced
+          </span>
+        </div>
 
         <!-- Calendar Months Container -->
         <div id="calendar-container" class="space-y-8">
@@ -1961,9 +1982,9 @@
         const navEval = document.getElementById("nav-assessments");
 
         const inactiveStyle =
-          "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/50 whitespace-nowrap relative";
+          "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/50 whitespace-nowrap shrink-0 relative";
         const activeStyle =
-          "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 bg-white text-brand-700 shadow-sm whitespace-nowrap relative";
+          "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 bg-white text-brand-700 shadow-sm whitespace-nowrap shrink-0 relative";
 
         if (navCal)
           navCal.className =
@@ -2554,13 +2575,16 @@
         const midContainer = document.getElementById("midterm-exam-list");
         const finalContainer = document.getElementById("final-exam-list");
 
-        const today = new Date("2026-10-27");
+        // Dynamic date evaluation relative to real-time current date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
         if (midContainer) {
           midContainer.innerHTML = "";
           MIDTERM_DAYS.forEach((d) => {
             const isDone = completedExams.has(d.id);
             const targetDate = new Date(d.dateStr);
+            targetDate.setHours(0, 0, 0, 0);
             const diffDays = Math.ceil(
               (targetDate - today) / (1000 * 60 * 60 * 24),
             );
@@ -2572,11 +2596,15 @@
                   ? "bg-amber-100 text-amber-800 border-amber-300"
                   : "bg-emerald-100 text-emerald-800 border-emerald-300";
             let urgencyBadge =
-              diffDays < 7
-                ? `${diffDays <= 0 ? "Passed" : diffDays + " Days"} (Very Important)`
-                : diffDays <= 14
-                  ? `${diffDays} Days (Prepare)`
-                  : `${diffDays} Days (Plan)`;
+              diffDays < 0
+                ? "Passed"
+                : diffDays === 0
+                  ? "Today"
+                  : diffDays < 7
+                    ? `${diffDays} Days (Very Important)`
+                    : diffDays <= 14
+                      ? `${diffDays} Days (Prepare)`
+                      : `${diffDays} Days (Plan)`;
 
             const item = document.createElement("div");
             item.className = `p-3 rounded-xl border flex items-center justify-between text-xs ${isDone ? "bg-emerald-50 border-emerald-300 opacity-60" : "bg-white border-slate-200"}`;
@@ -2598,6 +2626,7 @@
           FINAL_DAYS.forEach((d) => {
             const isDone = completedExams.has(d.id);
             const targetDate = new Date(d.dateStr);
+            targetDate.setHours(0, 0, 0, 0);
             const diffDays = Math.ceil(
               (targetDate - today) / (1000 * 60 * 60 * 24),
             );
@@ -2609,11 +2638,15 @@
                   ? "bg-amber-100 text-amber-800 border-amber-300"
                   : "bg-emerald-100 text-emerald-800 border-emerald-300";
             let urgencyBadge =
-              diffDays < 7
-                ? `${diffDays <= 0 ? "Passed" : diffDays + " Days"} (Very Important)`
-                : diffDays <= 14
-                  ? `${diffDays} Days (Prepare)`
-                  : `${diffDays} Days (Plan)`;
+              diffDays < 0
+                ? "Passed"
+                : diffDays === 0
+                  ? "Today"
+                  : diffDays < 7
+                    ? `${diffDays} Days (Very Important)`
+                    : diffDays <= 14
+                      ? `${diffDays} Days (Prepare)`
+                      : `${diffDays} Days (Plan)`;
 
             const item = document.createElement("div");
             item.className = `p-3 rounded-xl border flex items-center justify-between text-xs ${isDone ? "bg-emerald-50 border-emerald-300 opacity-60" : "bg-white border-slate-200"}`;
@@ -2672,15 +2705,23 @@
           .forEach((ev) => {
             const isDone = ev.done;
             const targetDate = new Date(ev.dateStr);
+            targetDate.setHours(0, 0, 0, 0);
             const diffTime = targetDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
             let urgencyBadge = "";
             let urgencyClass = "";
 
-            if (diffDays < 7) {
+            if (diffDays < 0) {
+              urgencyClass = "bg-slate-100 text-slate-700 border-slate-300";
+              urgencyBadge = "Passed";
+            } else if (diffDays === 0) {
+              urgencyClass =
+                "bg-rose-100 text-rose-800 border-rose-300 animate-pulse";
+              urgencyBadge = "Due Today!";
+            } else if (diffDays < 7) {
               urgencyClass = "bg-rose-100 text-rose-800 border-rose-300";
-              urgencyBadge = `${diffDays <= 0 ? "Today / Passed" : diffDays + " Days Left"} (Very Important)`;
+              urgencyBadge = `${diffDays} Days Left (Very Important)`;
             } else if (diffDays <= 14) {
               urgencyClass = "bg-amber-100 text-amber-800 border-amber-300";
               urgencyBadge = `${diffDays} Days Left (Prepare)`;
@@ -2897,15 +2938,58 @@
         closeResetModal();
       }
 
+      function syncPastClassesAndEvents() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let stateChanged = false;
+
+        // Auto-mark past classes as completed
+        ALL_CLASSES.forEach((c) => {
+          const classDate = new Date(c.dateStr);
+          classDate.setHours(0, 0, 0, 0);
+          if (classDate < today && !completedClasses.has(c.id)) {
+            completedClasses.add(c.id);
+            stateChanged = true;
+          }
+        });
+
+        if (stateChanged) {
+          saveState();
+        }
+      }
+
       // Initialize App on DOM Ready
       window.addEventListener("DOMContentLoaded", () => {
         loadState();
+        syncPastClassesAndEvents();
         renderCalendar();
         renderDashboard();
         renderEvaluations();
         renderEvents();
         updateNavigation();
         lucide.createIcons();
+      });
+
+      // Synchronize across open browser windows & tabs in real time
+      window.addEventListener("storage", () => {
+        loadState();
+        syncPastClassesAndEvents();
+        renderCalendar();
+        renderDashboard();
+        renderEvaluations();
+        renderEvents();
+      });
+
+      // Auto-update calculations when returning/focusing on tab
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          syncPastClassesAndEvents();
+          renderCalendar();
+          renderDashboard();
+          renderEvaluations();
+          renderEvents();
+        }
       });
     </script>
   </body>
