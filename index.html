@@ -3290,15 +3290,15 @@
       }
 
       function syncPastClassesAndEvents() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const now = new Date(); // Current live time
 
         let stateChanged = false;
 
         ALL_CLASSES.forEach((c) => {
-          const classDate = new Date(c.dateStr);
-          classDate.setHours(0, 0, 0, 0);
-          if (classDate < today && !completedClasses.has(c.id)) {
+          // Construct target completion time for each class (4:30 PM / 16:30 on class date)
+          const classCutoff = new Date(c.dateStr + "T16:30:00");
+          
+          if (now >= classCutoff && !completedClasses.has(c.id)) {
             completedClasses.add(c.id);
             stateChanged = true;
           }
@@ -3306,8 +3306,12 @@
 
         ACADEMIC_EVENTS.forEach((evt) => {
           if (!evt.dateStr) return;
+          // Important events complete after the full day finishes
           const evtDate = new Date(evt.dateStr);
           evtDate.setHours(0, 0, 0, 0);
+
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
 
           if (evtDate < today && !completedEvents.has(evt.id)) {
             completedEvents.add(evt.id);
