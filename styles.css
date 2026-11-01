@@ -1,0 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(203, 213, 225, 0.2);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.tile-sat {
+  border-top: 4px solid #6366f1;
+}
+.tile-sun {
+  border-top: 4px solid #0284c7;
+}
+.tile-tue {
+  border-top: 4px solid #10b981;
+}
+.tile-wed {
+  border-top: 4px solid #8b5cf6;
+}
+.tile-makeup {
+  border-top: 4px solid #f59e0b;
+}
