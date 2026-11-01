@@ -1855,14 +1855,71 @@ function renderEvents() {
   if (!container) return;
   container.innerHTML = "";
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const filtered = ACADEMIC_EVENTS.filter((evt) => {
     if (currentEventFilter === "ALL") return true;
     return evt.category === currentEventFilter;
   });
 
   filtered.forEach((evt) => {
-    const isDone = completedEvents.has(evt.id);
-    const item = document.createElement("div");
+    // Determine effective target date (start date or end date for ranges)
+    let startDateStr = evt.dateStr;
+    let endDateStr = evt.dateStr;
+
+    if (evt.dateDisplay && evt.dateDisplay.includes("–")) {
+      const parts = evt.dateDisplay.split("–").map((s) => s.trim());
+      const parsedEnd = new Date(parts[1]);
+      if (!isNaN(parsedEnd)) {
+        endDateStr = parsedEnd.toISOString().split("T")[0];
+      }
+    }
+
+    const isPast = isDatePassed(endDateStr);
+    if (isPast) {
+      completedEvents.add(evt.id);
+    }
+    const isDone = completedEvents.has(evt.id) || isPast;
+
+    // Calculate dynamic timer / countdown days left
+    const targetDate = new Date(startDateStr);
+    targetDate.setHours(0, 0, 0, 0);
+    const diffTime = targetDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let timerBadgeHtml = "";
+    if (isDone || isPast) {
+      timerBadgeHtml = `
+        <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+          Completed
+        </span>
+      `;
+    } else if (diffDays === 0) {
+      timerBadgeHtml = `
+        <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
+          Event Today!
+        </span>
+      `;
+    } else if (diffDays < 7) {
+      timerBadgeHtml = `
+        <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+          ${diffDays} Days Left
+        </span>
+      `;
+    } else if (diffDays <= 14) {
+      timerBadgeHtml = `
+        <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+          ${diffDays} Days Left
+        </span>
+      `;
+    } else {
+      timerBadgeHtml = `
+        <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+          ${diffDays} Days Left
+        </span>
+      `;
+    }
 
     let catBadge = "bg-slate-100 text-slate-700 border-slate-200";
     let iconName = "calendar";
@@ -1891,31 +1948,30 @@ function renderEvents() {
         "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/30";
     }
 
+    const item = document.createElement("div");
     item.className = `p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none ${
       isDone
-        ? "bg-emerald-50/80 border-emerald-500 shadow-sm"
-        : "bg-white border-slate-200 hover:border-brand-300"
+        ? "bg-emerald-50/80 border-emerald-400 opacity-80"
+        : "bg-white border-slate-200 hover:border-brand-300 shadow-sm"
     }`;
 
     item.innerHTML = `
       <div class="flex items-start gap-3.5">
         <div class="p-2.5 rounded-xl ${isDone ? "bg-emerald-600 text-white" : iconBg} shrink-0 mt-0.5 sm:mt-0">
-          <i data-lucide="${iconName}" class="w-5 h-5"></i>
+          <i data-lucide="${isDone ? "check-circle-2" : iconName}" class="w-5 h-5"></i>
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2 mb-1">
             <span class="text-xs font-extrabold ${isDone ? "text-emerald-950" : "text-slate-900"}">${evt.dateDisplay} (${evt.dayName})</span>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadge}">${evt.category}</span>
           </div>
-          <h3 class="text-sm font-bold ${isDone ? "text-emerald-900 line-through" : "text-slate-900"}">${evt.title}</h3>
+          <h3 class="text-sm font-bold ${isDone ? "text-emerald-900 line-through opacity-75" : "text-slate-900"}">${evt.title}</h3>
           <p class="text-xs ${isDone ? "text-emerald-700" : "text-slate-500"} mt-0.5">${evt.note}</p>
         </div>
       </div>
 
       <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
-        <span class="text-xs font-bold ${isDone ? "text-emerald-700" : "text-slate-400"}">
-          ${isDone ? "Completed" : "Upcoming"}
-        </span>
+        ${timerBadgeHtml}
       </div>
     `;
 
@@ -1957,7 +2013,18 @@ function syncPastClassesAndEvents() {
   });
 
   ACADEMIC_EVENTS.forEach((evt) => {
-    if (evt.dateStr && isDatePassed(evt.dateStr)) {
+    let targetDateStr = evt.dateStr;
+    // Handle multi-day event date ranges (e.g., "2026-12-05" vs range end date)
+    if (evt.dateDisplay && evt.dateDisplay.includes("–")) {
+      const parts = evt.dateDisplay.split("–").map((s) => s.trim());
+      const endPart = parts[1]; // e.g. "Dec 12, 2026"
+      const parsedEnd = new Date(endPart);
+      if (!isNaN(parsedEnd)) {
+        targetDateStr = parsedEnd.toISOString().split("T")[0];
+      }
+    }
+
+    if (targetDateStr && isDatePassed(targetDateStr)) {
       completedEvents.add(evt.id);
     }
   });
