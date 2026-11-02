@@ -1850,6 +1850,23 @@ function renderEvaluations() {
   lucide.createIcons();
 }
 
+function filterEvents(category) {
+  currentEventFilter = category;
+
+  document.querySelectorAll(".evt-f-btn").forEach((btn) => {
+    btn.className =
+      "evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
+  });
+
+  const activeBtn = document.getElementById(`evt-filter-${category}`);
+  if (activeBtn) {
+    activeBtn.className =
+      "evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-slate-900 text-white border-slate-900 shadow-sm";
+  }
+
+  renderEvents();
+}
+
 function renderEvents() {
   const container = document.getElementById("events-container");
   if (!container) return;
@@ -1862,6 +1879,22 @@ function renderEvents() {
     if (currentEventFilter === "ALL") return true;
     return evt.category === currentEventFilter;
   });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="bg-white p-8 text-center rounded-2xl border border-slate-200 shadow-sm">
+        <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-2">
+          <i data-lucide="calendar-off" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-xs font-bold text-slate-800">No Events Found</h3>
+        <p class="text-[11px] text-slate-500 max-w-sm mx-auto mt-0.5">
+          No scheduled events match the selected category filter.
+        </p>
+      </div>
+    `;
+    lucide.createIcons();
+    return;
+  }
 
   filtered.forEach((evt) => {
     // Determine effective target date (start date or end date for ranges)
