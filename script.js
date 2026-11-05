@@ -930,8 +930,10 @@ function switchPage(page) {
   const activeEl = document.getElementById(`page-${page}`);
   if (activeEl) activeEl.classList.remove("hidden");
 
-  if (page === "calendar") renderCalendar();
-  else if (page === "dashboard") renderDashboard();
+  if (page === "calendar") {
+    renderCalendar();
+    // scrollToCurrentMonth();
+  } else if (page === "dashboard") renderDashboard();
   else if (page === "assessments") renderEvaluations();
   else if (page === "events") renderEvents();
 
@@ -977,14 +979,15 @@ function setFilter(filter) {
   renderCalendar();
 }
 
+// Check if Date and Cutoff Time (4:30 PM / 16:30) Have Passed
 function isDatePassed(dateStr) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = new Date();
 
-  const tileDate = new Date(dateStr);
-  tileDate.setHours(0, 0, 0, 0);
+  // Set target class date with 4:30 PM (16:30:00) cutoff time
+  const targetCutoff = new Date(dateStr);
+  targetCutoff.setHours(16, 30, 0, 0);
 
-  return tileDate < today;
+  return now >= targetCutoff;
 }
 
 function renderCalendar() {
@@ -998,6 +1001,14 @@ function renderCalendar() {
     NOV: "November 2026",
     DEC: "December 2026",
     JAN: "January 2027",
+  };
+
+  // Map month key to Year-Month (YYYY-MM) for exact date checking
+  const monthDates = {
+    OCT: { year: 2026, monthIndex: 9 }, // October (0-indexed 9)
+    NOV: { year: 2026, monthIndex: 10 }, // November (0-indexed 10)
+    DEC: { year: 2026, monthIndex: 11 }, // December (0-indexed 11)
+    JAN: { year: 2027, monthIndex: 0 }, // January (0-indexed 0)
   };
 
   const monthThemeMap = {
@@ -1023,50 +1034,78 @@ function renderCalendar() {
     },
   };
 
-  // Track overall stats dynamically for the active filter
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthIdx = now.getMonth();
+
   let activeFilterTotal = 0;
   let activeFilterCompleted = 0;
 
   months.forEach((m) => {
     const monthClasses = ALL_CLASSES.filter((c) => c.month === m);
 
-    // Get classes that match the selected filter bar
     const filteredClasses = monthClasses.filter((c) => {
       if (currentFilter === "ALL") return true;
       if (currentFilter === "MAKEUP") return c.isMakeup;
+      if (currentFilter === "SAT-TUE")
+        return c.track === "SAT" || c.track === "TUE";
+      if (currentFilter === "SUN-WED")
+        return c.track === "SUN" || c.track === "WED";
       return c.track === currentFilter;
     });
 
     if (filteredClasses.length === 0 && currentFilter !== "ALL") return;
 
-    // Calculate month metrics based on FILTERED classes
     const monthTotalCount = filteredClasses.length;
     const monthCompletedCount = filteredClasses.filter((c) =>
       completedClasses.has(c.id),
     ).length;
     const monthUpcomingCount = monthTotalCount - monthCompletedCount;
 
-    // Accumulate total metrics for top stats bar
     activeFilterTotal += monthTotalCount;
     activeFilterCompleted += monthCompletedCount;
 
+    // Check month status: Is Current Month vs Past Month
+    const targetMonthObj = monthDates[m];
+    const isCurrentMonth =
+      currentYear === targetMonthObj.year &&
+      currentMonthIdx === targetMonthObj.monthIndex;
+
+    // Month is ended if target year/month is earlier than current year/month
+    const isMonthEnded =
+      targetMonthObj.year < currentYear ||
+      (targetMonthObj.year === currentYear &&
+        targetMonthObj.monthIndex < currentMonthIdx);
+
+    const endedMonthBadgeHtml = isMonthEnded
+      ? `<span class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">Completed</span>`
+      : ``;
+
     const theme = monthThemeMap[m];
     const monthSection = document.createElement("div");
+    monthSection.id = `month-card-${m}`;
     monthSection.className = `rounded-3xl border-2 shadow-sm p-5 space-y-4 ${theme.cardBg}`;
+
+    // Header Badges
+    const currentMonthBadgeHtml = isCurrentMonth
+      ? `<span class="text-[10px] font-black uppercase tracking-wider bg-blue-300 text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">Current Month</span>`
+      : ``;
 
     monthSection.innerHTML = `
       <button onclick="toggleSection('month-sec-${m}')" class="w-full flex items-center justify-between bg-gradient-to-r ${theme.headerGrad} p-3.5 rounded-2xl shadow-sm cursor-pointer hover:opacity-95 transition-opacity">
         <div class="flex items-center gap-2.5">
           <i data-lucide="calendar" class="w-5 h-5 opacity-90"></i>
           <h2 class="text-base font-extrabold tracking-wide">${monthTitles[m]}</h2>
+          ${currentMonthBadgeHtml}
+          ${endedMonthBadgeHtml}
           <span class="text-[11px] font-bold bg-white/20 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full border border-white/30">${monthUpcomingCount} Upcoming</span>
         </div>
         <div class="flex items-center gap-3">
           <span class="text-xs font-bold bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-xl border border-white/30">${monthCompletedCount} / ${monthTotalCount} Done</span>
-          <i id="month-sec-${m}-arrow" data-lucide="chevron-down" class="w-5 h-5 transform transition-transform"></i>
+          <i id="month-sec-${m}-arrow" data-lucide="chevron-down" class="w-5 h-5 transform transition-transform ${isMonthEnded ? "" : "rotate-180"}"></i>
         </div>
       </button>
-      <div id="month-sec-${m}" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 transition-all"></div>
+      <div id="month-sec-${m}" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 transition-all ${isMonthEnded ? "hidden" : ""}"></div>
     `;
 
     container.appendChild(monthSection);
@@ -1190,13 +1229,64 @@ function renderCalendar() {
     });
   });
 
-  // Update Top Quick Stats dynamically according to the current filter
   const qComp = document.getElementById("quick-completed-count");
   const qRem = document.getElementById("quick-remaining-count");
   if (qComp) qComp.innerText = activeFilterCompleted;
   if (qRem) qRem.innerText = activeFilterTotal - activeFilterCompleted;
 
   lucide.createIcons();
+}
+
+function scrollToCurrentMonth() {
+  const months = ["OCT", "NOV", "DEC", "JAN"];
+  const monthDates = {
+    OCT: { year: 2026, monthIndex: 9 },
+    NOV: { year: 2026, monthIndex: 10 },
+    DEC: { year: 2026, monthIndex: 11 },
+    JAN: { year: 2027, monthIndex: 0 },
+  };
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthIdx = now.getMonth();
+
+  const currentMonthKey = months.find((m) => {
+    const obj = monthDates[m];
+    return obj.year === currentYear && obj.monthIndex === currentMonthIdx;
+  });
+
+  if (currentMonthKey) {
+    const targetEl = document.getElementById(`month-card-${currentMonthKey}`);
+    if (targetEl) {
+      setTimeout(() => {
+        // Calculate sticky header offset position
+        const headerOffset = 80;
+        const elementPosition = targetEl.getBoundingClientRect().top;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }, 150);
+    }
+  }
+}
+
+// Each class item now belongs to its single track and paired track (pairedTrack)
+// Example mapping for SAT & TUE days:
+// SAT days -> track: "SAT", pairedTrack: "SAT-TUE"
+// SUN days -> track: "SUN", pairedTrack: "SUN-WED"
+// TUE days -> track: "TUE", pairedTrack: "SAT-TUE"
+// WED days -> track: "WED", pairedTrack: "SUN-WED"
+
+// Compute class sequence numbers dynamically for 24-class tracks:
+function getPairedClassNo(item) {
+  const pairedClasses = ALL_CLASSES.filter(
+    (c) => c.pairedTrack === item.pairedTrack,
+  );
+  return pairedClasses.findIndex((c) => c.id === item.id) + 1;
 }
 
 function renderDashboard() {
@@ -1256,59 +1346,121 @@ function renderDashboard() {
   if (sAssign) sAssign.innerText = assignCnt;
   if (sUpd) sUpd.innerText = updCnt;
 
-  const tracks = ["SAT", "SUN", "TUE", "WED"];
+  const trackConfigs = [
+    {
+      id: "SAT",
+      name: "SAT Track",
+      total: 12,
+      cols: "grid-cols-6",
+      tracks: ["SAT"],
+    },
+    {
+      id: "SUN",
+      name: "SUN Track",
+      total: 12,
+      cols: "grid-cols-6",
+      tracks: ["SUN"],
+    },
+    {
+      id: "TUE",
+      name: "TUE Track",
+      total: 12,
+      cols: "grid-cols-6",
+      tracks: ["TUE"],
+    },
+    {
+      id: "WED",
+      name: "WED Track",
+      total: 12,
+      cols: "grid-cols-6",
+      tracks: ["WED"],
+    },
+    {
+      id: "SAT-TUE",
+      name: "SAT/TUE Track",
+      total: 24,
+      cols: "grid-cols-12",
+      isPaired: true,
+      tracks: ["SAT", "TUE"],
+    },
+    {
+      id: "SUN-WED",
+      name: "SUN/WED Track",
+      total: 24,
+      cols: "grid-cols-12",
+      isPaired: true,
+      tracks: ["SUN", "WED"],
+    },
+  ];
+
   const trackGrid = document.getElementById("track-cards-grid");
-  if (trackGrid) {
-    trackGrid.innerHTML = "";
-    tracks.forEach((t) => {
-      const trackClasses = ALL_CLASSES.filter((c) => c.track === t);
-      const trackDone = trackClasses.filter((c) =>
-        completedClasses.has(c.id),
-      ).length;
-      const trackPct = Math.round((trackDone / 12) * 100);
+  if (!trackGrid) return;
+  trackGrid.innerHTML = "";
 
-      const card = document.createElement("div");
-      card.className =
-        "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4";
+  trackConfigs.forEach((config) => {
+    // Collect all class objects matching single or combined track days
+    const trackClasses = ALL_CLASSES.filter((c) =>
+      config.tracks.includes(c.track),
+    );
 
-      // Restored 2x6 Class Boxes Grid matching Image 1
-      card.innerHTML = `
-        <div>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">${t} TRACK</span>
-            <span class="text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">${trackDone} / 12</span>
-          </div>
-          <h3 class="text-xl font-extrabold text-slate-900">${t} Track</h3>
-          <p class="text-xs text-slate-500 mt-0.5">${12 - trackDone} classes remaining</p>
+    // Calculate completed count dynamically
+    const trackDone = trackClasses.filter((c) =>
+      completedClasses.has(c.id),
+    ).length;
+    const remainingCount = config.total - trackDone;
+    const trackPct = Math.round((trackDone / config.total) * 100);
+
+    const card = document.createElement("div");
+    card.className = `bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 ${
+      config.isPaired ? "md:col-span-2 lg:col-span-2" : ""
+    }`;
+
+    card.innerHTML = `
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">${config.id} TRACK</span>
+          <span class="text-xs font-bold ${
+            trackDone > 0
+              ? "text-emerald-700 bg-emerald-50 border border-emerald-200"
+              : "text-slate-900 bg-slate-100"
+          } px-2.5 py-0.5 rounded-md">${trackDone} / ${config.total}</span>
         </div>
+        <h3 class="text-xl font-extrabold text-slate-900">${config.name}</h3>
+        <p class="text-xs text-slate-500 mt-0.5">${remainingCount} class${remainingCount === 1 ? "" : "es"} remaining</p>
+      </div>
 
-        <div class="space-y-2">
-          <div class="flex justify-between text-xs font-semibold">
-            <span class="text-slate-500">Progress</span>
-            <span class="text-slate-900 font-bold">${trackPct}%</span>
-          </div>
-          <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-            <div class="h-full bg-brand-600 rounded-full transition-all duration-500" style="width: ${trackPct}%"></div>
-          </div>
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs font-semibold">
+          <span class="text-slate-500">Progress</span>
+          <span class="text-slate-900 font-bold">${trackPct}%</span>
         </div>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div class="h-full bg-brand-600 rounded-full transition-all duration-500" style="width: ${trackPct}%"></div>
+        </div>
+      </div>
 
-        <div class="grid grid-cols-6 gap-1.5 pt-2 border-t border-slate-100">
-          ${trackClasses
-            .map((c) => {
-              const isC = completedClasses.has(c.id);
-              return `
-                <div title="${c.month} ${c.dayNum} (${c.dayName}) - ${isC ? "Completed" : "Pending"}" 
-                     class="h-6 rounded-md flex items-center justify-center text-[10px] font-bold ${isC ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 border border-slate-200"}">
-                  ${c.classNo}
-                </div>
-              `;
-            })
-            .join("")}
-        </div>
-      `;
-      trackGrid.appendChild(card);
-    });
-  }
+      <div class="grid ${config.cols} gap-1.5 pt-2 border-t border-slate-100">
+        ${trackClasses
+          .map((c, idx) => {
+            const isC = completedClasses.has(c.id);
+            const classNum = idx + 1;
+            return `
+              <div title="${c.month} ${c.dayNum} (${c.dayName}) - Class #${classNum} - ${isC ? "Completed" : "Pending"}" 
+                   class="h-6 rounded-md flex items-center justify-center text-[10px] font-bold transition-colors ${
+                     isC
+                       ? "bg-emerald-500 text-white shadow-xs"
+                       : "bg-slate-100 text-slate-400 border border-slate-200"
+                   }">
+                ${classNum}
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+    `;
+
+    trackGrid.appendChild(card);
+  });
 
   const timeline = document.getElementById("schedule-timeline");
   if (timeline) {
@@ -2122,6 +2274,14 @@ function renderEvents() {
   lucide.createIcons();
 }
 
+// Calculate dynamic 1-24 class sequence number for paired tracks (SAT/TUE or SUN/WED)
+function getPairedClassNo(item) {
+  const pairedClasses = ALL_CLASSES.filter(
+    (c) => c.pairedTrack === item.pairedTrack,
+  );
+  return pairedClasses.findIndex((c) => c.id === item.id) + 1;
+}
+
 function openResetModal() {
   const modal = document.getElementById("reset-modal");
   if (modal) modal.classList.remove("hidden");
@@ -2174,18 +2334,25 @@ function syncPastClassesAndEvents() {
 }
 
 // Initialize App
-window.addEventListener("DOMContentLoaded", async () => {
-  await initSyncCode();
-  loadState();
-  syncPastClassesAndEvents();
-  renderCalendar();
-  renderDashboard();
-  renderEvaluations();
-  renderEvents();
-  updateNavigation();
-  setupFirebaseSync();
-  lucide.createIcons();
-});
+window.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+    await initSyncCode();
+    loadState();
+    syncPastClassesAndEvents();
+    renderCalendar();
+    renderDashboard();
+    renderEvaluations();
+    renderEvents();
+    updateNavigation();
+    setupFirebaseSync();
+    if (currentPage === "calendar") {
+      // scrollToCurrentMonth();
+    }
+    lucide.createIcons();
+  },
+  60000,
+); // 60 seconds delay to ensure Firebase is initialized
 
 window.addEventListener("storage", () => {
   loadState();
