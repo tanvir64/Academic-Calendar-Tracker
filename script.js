@@ -1289,6 +1289,72 @@ function getPairedClassNo(item) {
   return pairedClasses.findIndex((c) => c.id === item.id) + 1;
 }
 
+function renderDashboardTimeline() {
+  const container = document.getElementById("timeline-container");
+  if (!container) return;
+  container.innerHTML = "";
+
+  let foundFirstPending = false;
+
+  ALL_CLASSES.forEach((item) => {
+    const isPast = isDatePassed(item.dateStr);
+    const isDone = completedClasses.has(item.id) || isPast;
+
+    const row = document.createElement("div");
+    let isFirstPendingItem = false;
+
+    // Check if this is the first upcoming/pending item
+    if (!isDone && !foundFirstPending) {
+      row.id = "first-pending-timeline-item";
+      foundFirstPending = true;
+      isFirstPendingItem = true;
+    }
+
+    // Modern styling: Apply subtle pulse, ring border, and accent gradient to the first pending class
+    row.className = `p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-semibold transition-all ${
+      isDone
+        ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
+        : isFirstPendingItem
+          ? "bg-gradient-to-r from-amber-50/90 via-white to-white border-amber-300 text-slate-900 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/50 animate-pulse border-l-4 border-l-amber-500"
+          : "bg-white border-slate-200 text-slate-800 shadow-2xs"
+    }`;
+
+    row.innerHTML = `
+      <div class="flex items-center gap-3">
+        <span class="font-extrabold w-14 ${isDone ? "text-emerald-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-slate-100 border border-slate-200 text-slate-700"}">${item.dayName}</span>
+        <span class="text-slate-500">Track: <strong>${item.track}</strong> (#${item.classNo})</span>
+      </div>
+      <div>
+        ${
+          isDone
+            ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Completed</span>`
+            : isFirstPendingItem
+              ? `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-white shadow-xs animate-bounce">Next Up</span>`
+              : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Scheduled</span>`
+        }
+      </div>
+    `;
+
+    container.appendChild(row);
+  });
+
+  // Automatically scroll the timeline container to the highlighted item
+  if (foundFirstPending) {
+    setTimeout(() => {
+      const firstPending = document.getElementById(
+        "first-pending-timeline-item",
+      );
+      if (firstPending && container) {
+        container.scrollTo({
+          top: firstPending.offsetTop - container.offsetTop - 8,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
+  }
+}
+
 function renderDashboard() {
   const total = 48;
   const done = completedClasses.size;
@@ -1461,26 +1527,70 @@ function renderDashboard() {
 
     trackGrid.appendChild(card);
   });
+  // Add inside renderDashboard()
+  renderDashboardTimeline();
 
   const timeline = document.getElementById("schedule-timeline");
   if (timeline) {
     timeline.innerHTML = "";
+    let foundFirstPending = false;
+
     ALL_CLASSES.forEach((c) => {
-      const isDone = completedClasses.has(c.id);
+      const isPast = isDatePassed(c.dateStr);
+      const isDone = completedClasses.has(c.id) || isPast;
+
       const item = document.createElement("div");
-      item.className = `flex items-center justify-between p-2.5 rounded-xl border text-xs transition-colors ${isDone ? "bg-emerald-50 border-emerald-200" : "bg-slate-50 border-slate-200"}`;
+      let isFirstPendingItem = false;
+
+      // Identify and flag the first upcoming/pending item
+      if (!isDone && !foundFirstPending) {
+        item.id = "first-pending-timeline-item";
+        foundFirstPending = true;
+        isFirstPendingItem = true;
+      }
+
+      item.className = `flex items-center justify-between p-2.5 rounded-xl border text-xs transition-all ${
+        isDone
+          ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
+          : isFirstPendingItem
+            ? "bg-gradient-to-r from-amber-50/90 via-white to-white border-amber-300 text-slate-900 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/50 animate-pulse border-l-4 border-l-amber-500"
+            : "bg-slate-50 border-slate-200 text-slate-800"
+      }`;
+
       item.innerHTML = `
         <div class="flex items-center gap-3">
-          <span class="font-bold text-slate-900 w-16">${c.month} ${c.dayNum}</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-700">${c.dayName}</span>
+          <span class="font-extrabold w-16 ${isDone ? "text-emerald-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${c.month} ${c.dayNum}</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-white border border-slate-200 text-slate-700"}">${c.dayName}</span>
           <span class="text-slate-600 font-medium">Track: <strong class="text-slate-800">${c.track}</strong> (#${c.classNo})</span>
         </div>
-        <span class="font-semibold ${isDone ? "text-emerald-600" : "text-slate-400"}">
-          ${isDone ? "Completed" : "Pending"}
-        </span>
+        <div>
+          ${
+            isDone
+              ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Completed</span>`
+              : isFirstPendingItem
+                ? `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-white shadow-xs animate-bounce">Next Up</span>`
+                : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Scheduled</span>`
+          }
+        </div>
       `;
+
       timeline.appendChild(item);
     });
+
+    // Auto-scroll the timeline container to the first pending item
+    if (foundFirstPending) {
+      setTimeout(() => {
+        const firstPending = document.getElementById(
+          "first-pending-timeline-item",
+        );
+        if (firstPending && timeline) {
+          timeline.scrollTo({
+            top: firstPending.offsetTop - timeline.offsetTop - 8,
+            behavior: "smooth",
+          });
+        }
+      }, 100);
+    }
   }
 
   const makeupList = document.getElementById("makeup-schedule-list");
