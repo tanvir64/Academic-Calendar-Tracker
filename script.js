@@ -1041,6 +1041,9 @@ function renderCalendar() {
   let activeFilterTotal = 0;
   let activeFilterCompleted = 0;
 
+  // Track if we have flagged the first pending/upcoming class globally across the calendar grid
+  let foundFirstPendingInCalendar = false;
+
   months.forEach((m) => {
     const monthClasses = ALL_CLASSES.filter((c) => c.month === m);
 
@@ -1117,12 +1120,26 @@ function renderCalendar() {
       const dayEvals = userEvaluations.filter((e) => e.dateId === item.id);
       const linkData = makeupMeetingLinks[item.id];
 
+      // Check if this card is the very first upcoming/pending class
+      let isFirstPendingItem = false;
+      if (!isDone && !isPast && !foundFirstPendingInCalendar) {
+        isFirstPendingItem = true;
+        foundFirstPendingInCalendar = true;
+      }
+
       const card = document.createElement("div");
+      if (isFirstPendingItem) {
+        card.id = "first-pending-calendar-tile";
+      }
+
+      // Modern styling: Apply pulsing ring, blue glow, and accent border to first pending item
       let borderStyle = isDone
         ? "border-emerald-500 bg-emerald-50/80 shadow-sm"
-        : item.isMakeup
-          ? "border-amber-300 bg-amber-50/60 hover:bg-amber-100/70"
-          : "border-slate-200 bg-white hover:border-brand-300 hover:shadow-sm";
+        : isFirstPendingItem
+          ? "border-blue-400 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 shadow-lg shadow-blue-500/15 ring-2 ring-blue-400/60 animate-pulse border-l-4 border-l-blue-500"
+          : item.isMakeup
+            ? "border-amber-300 bg-amber-50/60 hover:bg-amber-100/70"
+            : "border-slate-200 bg-white hover:border-brand-300 hover:shadow-sm";
 
       card.className = `relative flex flex-col justify-between p-3.5 rounded-xl border-2 transition-all select-none ${borderStyle}`;
 
@@ -1186,15 +1203,22 @@ function renderCalendar() {
       card.innerHTML = `
         <div>
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-extrabold ${isDone ? "text-emerald-900" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-extrabold ${isDone ? "text-emerald-900" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
+              ${isFirstPendingItem ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-amber-500 text-white shadow-xs uppercase tracking-wider animate-bounce">Next Up</span>` : ``}
+            </div>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${trackBadgeClass}">${item.dayName}</span>
           </div>
 
           <div class="space-y-1">
-            <span class="text-xs ${isDone ? "text-emerald-700" : "text-slate-500"} font-medium block">Track: <strong class="${isDone ? "text-emerald-900" : "text-slate-800"}">${item.track}</strong> (#${item.classNo})</span>
+            <span class="text-xs ${isDone ? "text-emerald-700" : "text-slate-500"} font-medium block">
+              Track: <strong class="${isDone ? "text-emerald-900" : "text-slate-800"}">${item.track}</strong> 
+              <span class="text-[11px] font-bold text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200/60 ml-0.5">#${item.classNo}/12</span>
+            </span>                  
+
             ${
               item.isMakeup
-                ? `<div class="flex items-center justify-between">
+                ? `<div class="flex items-center justify-between pt-0.5">
                     <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">
                       <i data-lucide="video" class="w-3 h-3"></i> Online Makeup
                     </span>
@@ -1220,11 +1244,12 @@ function renderCalendar() {
           ${
             isPast || isDone
               ? `<span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200">Completed</span>`
-              : `<span class="text-[10px] font-semibold text-slate-400">Scheduled</span>`
+              : isFirstPendingItem
+                ? `<span class="text-[10px] font-extrabold text-amber-800 bg-amber-200 px-2 py-0.5 rounded-md border border-amber-300">Next Up</span>`
+                : `<span class="text-[10px] font-semibold text-slate-400">Scheduled</span>`
           }
         </div>
       `;
-
       grid.appendChild(card);
     });
   });
