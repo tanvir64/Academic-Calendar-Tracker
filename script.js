@@ -1869,12 +1869,97 @@ function filterEvents(category) {
 
 function renderEvents() {
   const container = document.getElementById("events-container");
+  const bannerContainer = document.getElementById("events-banner-container");
   if (!container) return;
   container.innerHTML = "";
+  if (bannerContainer) bannerContainer.innerHTML = "";
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // 1. Calculate urgent events (< 3 days left and not completed)
+  const urgentEvents = ACADEMIC_EVENTS.filter((evt) => {
+    let startDateStr = evt.dateStr;
+    let endDateStr = evt.dateStr;
+
+    if (evt.dateDisplay && evt.dateDisplay.includes("–")) {
+      const parts = evt.dateDisplay.split("–").map((s) => s.trim());
+      const parsedEnd = new Date(parts[1]);
+      if (!isNaN(parsedEnd)) {
+        endDateStr = parsedEnd.toISOString().split("T")[0];
+      }
+    }
+
+    const isPast = isDatePassed(endDateStr);
+    const isDone = completedEvents.has(evt.id) || isPast;
+
+    if (isDone) return false;
+
+    const targetDate = new Date(startDateStr);
+    targetDate.setHours(0, 0, 0, 0);
+    const diffTime = targetDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays >= 0 && diffDays < 3;
+  });
+
+  // Update navigation badge for Important Events tab
+  const navEvtBadge = document.getElementById("nav-events-badge");
+  if (navEvtBadge) {
+    if (urgentEvents.length > 0) {
+      navEvtBadge.innerText = urgentEvents.length;
+      navEvtBadge.classList.remove("hidden");
+    } else {
+      navEvtBadge.classList.add("hidden");
+    }
+  }
+
+  // 2. Render Urgent Notification Banner if any urgent events exist
+  if (bannerContainer && urgentEvents.length > 0) {
+    const banner = document.createElement("div");
+    banner.className =
+      "bg-gradient-to-r from-rose-500 via-red-500 to-amber-500 text-white p-4 sm:p-5 rounded-3xl shadow-lg shadow-rose-500/20 border border-rose-400/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pulse";
+
+    const eventNames = urgentEvents
+      .map(
+        (e) =>
+          `<strong>${e.title}</strong> (${
+            Math.ceil(
+              (new Date(e.dateStr).setHours(0, 0, 0, 0) - today) /
+                (1000 * 60 * 60 * 24)
+            ) === 0
+              ? "Today"
+              : Math.ceil(
+                  (new Date(e.dateStr).setHours(0, 0, 0, 0) - today) /
+                    (1000 * 60 * 60 * 24)
+                ) + " Day(s) Left"
+          })`
+      )
+      .join(", ");
+
+    banner.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl shrink-0">
+          <i data-lucide="bell-ring" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-rose-100 flex items-center gap-1.5">
+            Urgent Academic Notification
+          </h4>
+          <p class="text-xs sm:text-sm font-semibold mt-0.5 leading-snug">
+            Upcoming Event Alert: ${eventNames}
+          </p>
+        </div>
+      </div>
+      <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider rounded-xl border border-white/30 shrink-0">
+        Action Required
+      </span>
+    `;
+
+    bannerContainer.appendChild(banner);
+  }
+
+  // 3. Filter list based on selected category pill
   const filtered = ACADEMIC_EVENTS.filter((evt) => {
     if (currentEventFilter === "ALL") return true;
     return evt.category === currentEventFilter;
@@ -1896,8 +1981,8 @@ function renderEvents() {
     return;
   }
 
+  // 4. Render Event Cards
   filtered.forEach((evt) => {
-    // Determine effective target date (start date or end date for ranges)
     let startDateStr = evt.dateStr;
     let endDateStr = evt.dateStr;
 
@@ -1915,7 +2000,6 @@ function renderEvents() {
     }
     const isDone = completedEvents.has(evt.id) || isPast;
 
-    // Calculate dynamic timer / countdown days left
     const targetDate = new Date(startDateStr);
     targetDate.setHours(0, 0, 0, 0);
     const diffTime = targetDate - today;
@@ -1932,6 +2016,13 @@ function renderEvents() {
       timerBadgeHtml = `
         <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
           Event Today!
+        </span>
+      `;
+    } else if (diffDays < 3) {
+      // Highlighted notification style for < 3 days left
+      timerBadgeHtml = `
+        <span class="px-2.5 py-1 rounded-xl text-xs font-black bg-rose-500 text-white shadow-md shadow-rose-500/30 border border-rose-600 animate-bounce">
+          ${diffDays} Day${diffDays > 1 ? "s" : ""} Left
         </span>
       `;
     } else if (diffDays < 7) {
@@ -1956,35 +2047,32 @@ function renderEvents() {
 
     let catBadge = "bg-slate-100 text-slate-700 border-slate-200";
     let iconName = "calendar";
-    let iconBg =
-      "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm shadow-indigo-500/30";
+    let iconBg = "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm shadow-indigo-500/30";
 
     if (evt.category === "EXAM") {
       catBadge = "bg-rose-100 text-rose-800 border-rose-200";
       iconName = "file-text";
-      iconBg =
-        "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm shadow-rose-500/30";
+      iconBg = "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm shadow-rose-500/30";
     } else if (evt.category === "PAYMENT") {
       catBadge = "bg-emerald-100 text-emerald-800 border-emerald-200";
       iconName = "credit-card";
-      iconBg =
-        "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/30";
+      iconBg = "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/30";
     } else if (evt.category === "HOLIDAY") {
       catBadge = "bg-amber-100 text-amber-800 border-amber-200";
       iconName = "sun";
-      iconBg =
-        "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm shadow-amber-500/30";
+      iconBg = "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm shadow-amber-500/30";
     } else if (evt.category === "ACADEMIC") {
       catBadge = "bg-indigo-100 text-indigo-800 border-indigo-200";
       iconName = "clock";
-      iconBg =
-        "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/30";
+      iconBg = "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/30";
     }
 
     const item = document.createElement("div");
     item.className = `p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none ${
       isDone
         ? "bg-emerald-50/80 border-emerald-400 opacity-80"
+        : diffDays < 3 && !isDone
+        ? "bg-rose-50/60 border-rose-300 shadow-md shadow-rose-500/10"
         : "bg-white border-slate-200 hover:border-brand-300 shadow-sm"
     }`;
 
