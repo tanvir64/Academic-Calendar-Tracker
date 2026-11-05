@@ -1877,8 +1877,11 @@ function renderEvents() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 1. Calculate urgent events (< 3 days left and not completed)
+  // 1. Calculate urgent events (< 3 days left, not completed, and EXCLUDING holidays)
   const urgentEvents = ACADEMIC_EVENTS.filter((evt) => {
+    // Exclude holidays from urgent notifications
+    if (evt.category === "HOLIDAY") return false;
+
     let startDateStr = evt.dateStr;
     let endDateStr = evt.dateStr;
 
@@ -1914,44 +1917,39 @@ function renderEvents() {
     }
   }
 
-  // 2. Render Urgent Notification Banner if any urgent events exist
+  // 2. Render Urgent Notification Banner if non-holiday urgent events exist
   if (bannerContainer && urgentEvents.length > 0) {
     const banner = document.createElement("div");
     banner.className =
-      "bg-gradient-to-r from-rose-500 via-red-500 to-amber-500 text-white p-4 sm:p-5 rounded-3xl shadow-lg shadow-rose-500/20 border border-rose-400/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pulse";
+      "bg-slate-900/95 text-slate-100 p-4 sm:p-5 rounded-3xl shadow-xl shadow-rose-950/20 border border-rose-900/40 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3";
 
     const eventNames = urgentEvents
-      .map(
-        (e) =>
-          `<strong>${e.title}</strong> (${
-            Math.ceil(
-              (new Date(e.dateStr).setHours(0, 0, 0, 0) - today) /
-                (1000 * 60 * 60 * 24)
-            ) === 0
-              ? "Today"
-              : Math.ceil(
-                  (new Date(e.dateStr).setHours(0, 0, 0, 0) - today) /
-                    (1000 * 60 * 60 * 24)
-                ) + " Day(s) Left"
-          })`
-      )
+      .map((e) => {
+        const targetDate = new Date(e.dateStr);
+        targetDate.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil(
+          (targetDate - today) / (1000 * 60 * 60 * 24),
+        );
+        const label = diffDays === 0 ? "Today" : `${diffDays} Day(s) Left`;
+        return `<strong class="text-rose-100 font-bold">${e.title}</strong> (${label})`;
+      })
       .join(", ");
 
     banner.innerHTML = `
-      <div class="flex items-center gap-3">
-        <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl shrink-0">
-          <i data-lucide="bell-ring" class="w-6 h-6 text-white"></i>
+      <div class="flex items-center gap-3.5">
+        <div class="p-2.5 bg-rose-500/15 text-rose-400 border border-rose-500/30 rounded-2xl shrink-0">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
         </div>
         <div>
-          <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-rose-100 flex items-center gap-1.5">
-            Urgent Academic Notification
+          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+            Urgent Academic Warning
           </h4>
-          <p class="text-xs sm:text-sm font-semibold mt-0.5 leading-snug">
+          <p class="text-xs sm:text-sm font-medium text-slate-300 mt-0.5 leading-snug">
             Upcoming Event Alert: ${eventNames}
           </p>
         </div>
       </div>
-      <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider rounded-xl border border-white/30 shrink-0">
+      <span class="px-3 py-1 bg-rose-950/80 text-rose-300 text-[10px] font-bold uppercase tracking-wider rounded-xl border border-rose-800/60 shrink-0">
         Action Required
       </span>
     `;
@@ -2018,8 +2016,8 @@ function renderEvents() {
           Event Today!
         </span>
       `;
-    } else if (diffDays < 3) {
-      // Highlighted notification style for < 3 days left
+    } else if (diffDays < 3 && evt.category !== "HOLIDAY") {
+      // Highlighted notification style for < 3 days left (excluding holidays)
       timerBadgeHtml = `
         <span class="px-2.5 py-1 rounded-xl text-xs font-black bg-rose-500 text-white shadow-md shadow-rose-500/30 border border-rose-600 animate-bounce">
           ${diffDays} Day${diffDays > 1 ? "s" : ""} Left
@@ -2047,47 +2045,69 @@ function renderEvents() {
 
     let catBadge = "bg-slate-100 text-slate-700 border-slate-200";
     let iconName = "calendar";
-    let iconBg = "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm shadow-indigo-500/30";
+    let iconBg =
+      "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm shadow-indigo-500/30";
 
     if (evt.category === "EXAM") {
       catBadge = "bg-rose-100 text-rose-800 border-rose-200";
       iconName = "file-text";
-      iconBg = "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm shadow-rose-500/30";
+      iconBg =
+        "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm shadow-rose-500/30";
     } else if (evt.category === "PAYMENT") {
       catBadge = "bg-emerald-100 text-emerald-800 border-emerald-200";
       iconName = "credit-card";
-      iconBg = "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/30";
+      iconBg =
+        "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/30";
     } else if (evt.category === "HOLIDAY") {
       catBadge = "bg-amber-100 text-amber-800 border-amber-200";
       iconName = "sun";
-      iconBg = "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm shadow-amber-500/30";
+      iconBg =
+        "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm shadow-amber-500/30";
     } else if (evt.category === "ACADEMIC") {
       catBadge = "bg-indigo-100 text-indigo-800 border-indigo-200";
       iconName = "clock";
-      iconBg = "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/30";
+      iconBg =
+        "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/30";
     }
+
+    const isUrgentNonHoliday =
+      diffDays < 3 && !isDone && evt.category !== "HOLIDAY";
 
     const item = document.createElement("div");
     item.className = `p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none ${
       isDone
         ? "bg-emerald-50/80 border-emerald-400 opacity-80"
-        : diffDays < 3 && !isDone
-        ? "bg-rose-50/60 border-rose-300 shadow-md shadow-rose-500/10"
-        : "bg-white border-slate-200 hover:border-brand-300 shadow-sm"
+        : isUrgentNonHoliday
+          ? "bg-rose-50/60 border-rose-300 shadow-md shadow-rose-500/10"
+          : "bg-white border-slate-200 hover:border-brand-300 shadow-sm"
     }`;
 
     item.innerHTML = `
       <div class="flex items-start gap-3.5">
-        <div class="p-2.5 rounded-xl ${isDone ? "bg-emerald-600 text-white" : iconBg} shrink-0 mt-0.5 sm:mt-0">
-          <i data-lucide="${isDone ? "check-circle-2" : iconName}" class="w-5 h-5"></i>
+        <div class="p-2.5 rounded-xl ${
+          isDone ? "bg-emerald-600 text-white" : iconBg
+        } shrink-0 mt-0.5 sm:mt-0">
+          <i data-lucide="${
+            isDone ? "check-circle-2" : iconName
+          }" class="w-5 h-5"></i>
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2 mb-1">
-            <span class="text-xs font-extrabold ${isDone ? "text-emerald-950" : "text-slate-900"}">${evt.dateDisplay} (${evt.dayName})</span>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadge}">${evt.category}</span>
+            <span class="text-xs font-extrabold ${
+              isDone ? "text-emerald-950" : "text-slate-900"
+            }">${evt.dateDisplay} (${evt.dayName})</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadge}">${
+              evt.category
+            }</span>
           </div>
-          <h3 class="text-sm font-bold ${isDone ? "text-emerald-900 line-through opacity-75" : "text-slate-900"}">${evt.title}</h3>
-          <p class="text-xs ${isDone ? "text-emerald-700" : "text-slate-500"} mt-0.5">${evt.note}</p>
+          <h3 class="text-sm font-bold ${
+            isDone
+              ? "text-emerald-900 line-through opacity-75"
+              : "text-slate-900"
+          }">${evt.title}</h3>
+          <p class="text-xs ${
+            isDone ? "text-emerald-700" : "text-slate-500"
+          } mt-0.5">${evt.note}</p>
         </div>
       </div>
 
