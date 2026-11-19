@@ -32,6 +32,14 @@ A responsive, cloud-synced academic schedule and progress management platform en
 ### 5. Real-Time Cloud Sync (Firebase)
 - **8-Character Session Keys**: Syncs user-created assessments, custom meeting links, and completion states across browsers and devices via Firebase Realtime Database using lightweight 8-character session codes—no traditional account registration required.
 
+### 6. Optional Personal Routine
+- **My Routine**: The header's `My Routine` button lets you add your own classes (day, start/end time, course code, title, room, and optional section) manually or by pasting/uploading a CSV (a sample CSV is available to download). The section is the seventh CSV column; existing six-column CSVs remain supported. Odd-coded (theory) courses can add their paired day automatically (SAT↔TUE, SUN↔WED).
+- Edit or remove individual routine entries in the same modal. Editing affects only the selected day; changing a course code does not move its existing assessments or meeting links. Changing only the section preserves saved class data.
+- **Your classes only**: Once a routine exists, the calendar and dashboard show only your classes (one item per course section per day, sorted by time) and the track filters become course-and-section filters. Without a routine nothing changes.
+- **Online makeup days**: The `makeupFor` field names the weekday whose routine a makeup date replaces (e.g. a Thursday that follows `SAT`). Your classes of that weekday appear on it, with the meeting link in place of the room. A makeup date without `makeupFor` retains the general calendar item.
+- Your routine is stored in `localStorage` and included in the sync payload.
+- If you edit local data before an existing cloud session finishes loading, sync pauses to preserve both versions. Reconnecting to that code loads the cloud version and replaces the local one.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -48,6 +56,7 @@ A responsive, cloud-synced academic schedule and progress management platform en
 ```text
 ├── index.html          # Main application layout, sticky header, modals, and tab views
 ├── script.js           # Core logic: ALL_CLASSES dataset, auto-completion engine, Firebase sync, and DOM renderers
+├── routine.js          # Optional personal routine: modal, CSV import, per-course schedule, course filters
 ├── style.css           # Custom utility overrides and animation helpers (if applicable)
 └── README.md           # Project documentation
 ```
