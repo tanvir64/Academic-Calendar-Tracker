@@ -842,6 +842,10 @@ let syncWriteSequence = 0;
 
 function saveState(automatic = false) {
   try {
+    if (syncCode && !isRemoteUpdating && !automatic) {
+      if (!db || !isSyncReady) pendingSyncChanges = true;
+      localStorage.setItem(SYNC_PENDING_KEY, syncCode);
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...completedClasses]));
     localStorage.setItem(
       EVENTS_STORAGE_KEY,
@@ -855,14 +859,10 @@ function saveState(automatic = false) {
     localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(makeupMeetingLinks));
     localStorage.setItem(ROUTINE_STORAGE_KEY, JSON.stringify(routineClasses));
 
-    if (syncCode && !isRemoteUpdating && (!db || !isSyncReady) && !automatic) {
-      pendingSyncChanges = true;
-      localStorage.setItem(SYNC_PENDING_KEY, syncCode);
-    }
     if (db && syncCode && !isRemoteUpdating && isSyncReady) {
       const code = syncCode;
       const sequence = ++syncWriteSequence;
-      localStorage.setItem(SYNC_PENDING_KEY, code);
+      const hasPendingChanges = localStorage.getItem(SYNC_PENDING_KEY) === code;
       db.ref("UIU_Calendar_263/sync_sessions/" + syncCode).set({
         completedClasses: [...completedClasses],
         completedEvents: [...completedEvents],
@@ -872,7 +872,7 @@ function saveState(automatic = false) {
         routineClasses,
         lastUpdated: Date.now(),
       }).then(() => {
-        if (syncCode === code && isSyncReady && sequence === syncWriteSequence) {
+        if (hasPendingChanges && syncCode === code && isSyncReady && sequence === syncWriteSequence) {
           localStorage.removeItem(SYNC_PENDING_KEY);
         }
       }).catch((error) => {
@@ -1448,7 +1448,7 @@ function renderDashboardTimeline() {
 
 function renderDashboard() {
   const total = hasRoutine() ? getScheduleClasses().length : 48;
-  const done = hasRoutine() ? getScheduleDone() : completedClasses.size;
+  const done = hasRoutine() ? getScheduleDone() : [...completedClasses].filter((id) => !id.includes("|")).length;
   const remaining = total - done;
   const percentage = Math.round((done / total) * 100);
 
@@ -2563,13 +2563,11 @@ window.addEventListener(
 ); // 60 seconds delay to ensure Firebase is initialized
 
 window.addEventListener("storage", (event) => {
-  if (
-    syncCode &&
-    (!db || !isSyncReady) &&
-    [STORAGE_KEY, EVENTS_STORAGE_KEY, EVALS_STORAGE_KEY, EXAMS_STORAGE_KEY, LINKS_STORAGE_KEY, ROUTINE_STORAGE_KEY].includes(event.key)
-  ) {
-    pendingSyncChanges = true;
-    localStorage.setItem(SYNC_PENDING_KEY, syncCode);
+  if (event.key === SYNC_PENDING_KEY) {
+    if (syncCode && (!db || !isSyncReady) && event.newValue === syncCode) {
+      pendingSyncChanges = true;
+    }
+    return;
   }
   loadState();
   syncPastClassesAndEvents();
