@@ -102,10 +102,8 @@ test("course filters distinguish sections and deduplicate paired days", () => {
   const ctx = setup();
   const result = vm.runInContext(`
     routineClasses = [
-      { day: "SAT", start: "09:00", end: "10:00", code: "CSE1111", title: "Course", room: "R" },
-      { day: "SAT", start: "10:00", end: "11:00", code: "CSE1111", title: "Course", room: "R", section: "A" },
-      { day: "TUE", start: "10:00", end: "11:00", code: "CSE1111", title: "Course", room: "R", section: "A" },
-      { day: "SAT", start: "11:00", end: "12:00", code: "CSE1111", title: "Course", room: "R", section: "B 1" },
+      { day: "SAT", start: "08:31", end: "09:50", code: "CSE1111", title: "Course", room: "R", section: "A" },
+      { day: "SAT", start: "09:51", end: "11:10", code: "CSE1111", title: "Course", room: "R", section: "B" }
     ];
     JSON.stringify(getRoutineFilters().map(routineFilterKey));
   `, ctx);

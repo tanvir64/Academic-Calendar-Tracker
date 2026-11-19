@@ -824,7 +824,7 @@ function buildRoutineModal() {
 
     const [h, m] = startTime.split(":").map(Number);
     const totalMinutes = h * 60 + m;
-    const additionalMinutes = isTheoryRoutineCode(codeValue) ? 79 : 119;
+    const additionalMinutes = isTheoryRoutineCode(codeValue) ? 79 : 149;
     const newTotalMinutes = totalMinutes + additionalMinutes;
 
     const newHours = Math.floor(newTotalMinutes / 60);
