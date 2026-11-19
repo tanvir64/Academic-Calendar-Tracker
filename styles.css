@@ -39,3 +39,26 @@ body {
 .tile-makeup {
   border-top: 4px solid #f59e0b;
 }
+
+/* Personal routine modal */
+.routine-modal-body {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.routine-field {
+  width: 100%;
+  font-size: 0.75rem;
+  color: #1e293b;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  outline: none;
+}
+.routine-field:focus {
+  border-color: #6366f1;
+}
+.routine-csv {
+  font-family: ui-monospace, monospace;
+  resize: vertical;
+}

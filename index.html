@@ -79,6 +79,13 @@
             <!-- Mobile Actions -->
             <div class="flex items-center gap-2 shrink-0 md:hidden">
               <button
+                onclick="openRoutineModal()"
+                class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
+              >
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                <span>Routine</span>
+              </button>
+              <button
                 onclick="openSyncModal()"
                 class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
               >
@@ -151,6 +158,13 @@
 
           <!-- Desktop Actions -->
           <div class="hidden md:flex items-center gap-2 shrink-0">
+            <button
+              onclick="openRoutineModal()"
+              class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
+            >
+              <i data-lucide="clock" class="w-4 h-4 text-brand-600"></i>
+              <span>My Routine</span>
+            </button>
             <button
               onclick="openSyncModal()"
               class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
@@ -1331,5 +1345,6 @@
 
     <!-- Application JavaScript -->
     <script src="script.js"></script>
+    <script src="routine.js"></script>
   </body>
 </html>

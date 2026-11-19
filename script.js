@@ -90,6 +90,7 @@ const ALL_CLASSES = [
     classNo: 2,
     isMakeup: true,
     makeupFor: "SAT",
+    follows: "SAT",
   },
   {
     id: "nov-08",
@@ -131,6 +132,7 @@ const ALL_CLASSES = [
     classNo: 3,
     isMakeup: true,
     makeupFor: "SAT",
+    follows: "SAT",
   },
   {
     id: "nov-14",
@@ -222,6 +224,7 @@ const ALL_CLASSES = [
     classNo: 5,
     isMakeup: true,
     makeupFor: "SUN",
+    follows: "SUN",
   },
   {
     id: "nov-28",
@@ -295,6 +298,7 @@ const ALL_CLASSES = [
     classNo: 7,
     isMakeup: true,
     makeupFor: "WED",
+    follows: "WED",
   },
   {
     id: "dec-19",
@@ -386,6 +390,7 @@ const ALL_CLASSES = [
     classNo: 9,
     isMakeup: true,
     makeupFor: "SAT",
+    follows: "SAT",
   },
 
   // January 2027
@@ -781,6 +786,7 @@ const EVALS_STORAGE_KEY = "calendar_263_user_evaluations_v1";
 const EXAMS_STORAGE_KEY = "calendar_263_completed_exams_v1";
 const LINKS_STORAGE_KEY = "calendar_263_makeup_links_v1";
 const SYNC_CODE_KEY = "calendar_263_sync_code_v1";
+const SYNC_PENDING_KEY = "calendar_263_sync_pending_v1";
 
 function generateRaw8CharToken() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -821,14 +827,20 @@ function loadState() {
 
     const savedLinks = localStorage.getItem(LINKS_STORAGE_KEY);
     if (savedLinks) makeupMeetingLinks = JSON.parse(savedLinks);
+
+    const savedRoutine = localStorage.getItem(ROUTINE_STORAGE_KEY);
+    if (savedRoutine) routineClasses = JSON.parse(savedRoutine);
   } catch (e) {
     console.error("Failed loading state:", e);
   }
 }
 
 let isRemoteUpdating = false;
+let isSyncReady = false;
+let pendingSyncChanges = false;
+let syncWriteSequence = 0;
 
-function saveState() {
+function saveState(automatic = false) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...completedClasses]));
     localStorage.setItem(
@@ -841,15 +853,37 @@ function saveState() {
       JSON.stringify([...completedExams]),
     );
     localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(makeupMeetingLinks));
+    localStorage.setItem(ROUTINE_STORAGE_KEY, JSON.stringify(routineClasses));
 
-    if (db && syncCode && !isRemoteUpdating) {
+    if (syncCode && !isRemoteUpdating && (!db || !isSyncReady) && !automatic) {
+      pendingSyncChanges = true;
+      localStorage.setItem(SYNC_PENDING_KEY, syncCode);
+    }
+    if (db && syncCode && !isRemoteUpdating && isSyncReady) {
+      const code = syncCode;
+      const sequence = ++syncWriteSequence;
+      localStorage.setItem(SYNC_PENDING_KEY, code);
       db.ref("UIU_Calendar_263/sync_sessions/" + syncCode).set({
         completedClasses: [...completedClasses],
         completedEvents: [...completedEvents],
         completedExams: [...completedExams],
         userEvaluations,
         makeupMeetingLinks,
+        routineClasses,
         lastUpdated: Date.now(),
+      }).then(() => {
+        if (syncCode === code && isSyncReady && sequence === syncWriteSequence) {
+          localStorage.removeItem(SYNC_PENDING_KEY);
+        }
+      }).catch((error) => {
+        console.error("Firebase sync write failed:", error);
+        if (syncCode === code && isSyncReady && sequence === syncWriteSequence) {
+          isSyncReady = false;
+          pendingSyncChanges = true;
+          if (syncRef) syncRef.off();
+          syncRef = null;
+          alert("Sync failed. Your data remains on this device. Reconnect using your sync code to retry.");
+        }
       });
     }
   } catch (e) {
@@ -861,28 +895,52 @@ function setupFirebaseSync() {
   if (!db || !syncCode) return;
   if (syncRef) syncRef.off();
 
+  isSyncReady = false;
+  syncWriteSequence++;
+  pendingSyncChanges = localStorage.getItem(SYNC_PENDING_KEY) === syncCode;
   syncRef = db.ref("UIU_Calendar_263/sync_sessions/" + syncCode);
-  syncRef.on("value", (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      isRemoteUpdating = true;
-      completedClasses = new Set(data.completedClasses || []);
-      completedEvents = new Set(data.completedEvents || []);
-      completedExams = new Set(data.completedExams || []);
-      userEvaluations = data.userEvaluations || [];
-      makeupMeetingLinks = data.makeupMeetingLinks || {};
+  const ref = syncRef;
+  ref.on(
+    "value",
+    (snapshot) => {
+      if (ref !== syncRef) return;
+      const data = snapshot.val();
+      if (!isSyncReady && data && pendingSyncChanges) {
+        ref.off();
+        syncRef = null;
+        console.warn("Sync paused because local changes were made before the remote data loaded.");
+        alert("Sync paused: local and cloud data were both preserved. To load the cloud data, reconnect using your sync code; this will replace local data.");
+        return;
+      }
+      isSyncReady = true;
+      if (data) {
+        isRemoteUpdating = true;
+        completedClasses = new Set(data.completedClasses || []);
+        completedEvents = new Set(data.completedEvents || []);
+        completedExams = new Set(data.completedExams || []);
+        userEvaluations = data.userEvaluations || [];
+        makeupMeetingLinks = data.makeupMeetingLinks || {};
+        routineClasses = data.routineClasses || [];
 
-      syncPastClassesAndEvents();
-      renderCalendar();
-      renderDashboard();
-      renderEvaluations();
-      renderEvents();
+        syncPastClassesAndEvents();
+        renderCalendar();
+        renderDashboard();
+        renderEvaluations();
+        renderEvents();
 
-      isRemoteUpdating = false;
-    } else {
-      saveState();
-    }
-  });
+        isRemoteUpdating = false;
+      } else {
+        saveState();
+      }
+    },
+    (error) => {
+      if (ref !== syncRef) return;
+      isSyncReady = false;
+      syncRef = null;
+      console.error("Firebase sync failed:", error);
+      alert("Sync failed. Your data remains on this device. Reconnect using your sync code to retry.");
+    },
+  );
 }
 
 function openSyncModal() {
@@ -913,9 +971,14 @@ function connectSyncCode(e) {
     .value.trim()
     .toUpperCase();
   if (!inputVal) return;
+  if (
+    localStorage.getItem(SYNC_PENDING_KEY) &&
+    !confirm("Connecting may replace unsynced local data with cloud data. Continue?")
+  ) return;
 
   syncCode = inputVal;
   localStorage.setItem(SYNC_CODE_KEY, syncCode);
+  localStorage.removeItem(SYNC_PENDING_KEY);
   setupFirebaseSync();
   closeSyncModal();
 }
@@ -991,6 +1054,7 @@ function isDatePassed(dateStr) {
 }
 
 function renderCalendar() {
+  if (refreshRoutineUi()) return;
   const container = document.getElementById("calendar-container");
   if (!container) return;
   container.innerHTML = "";
@@ -1045,11 +1109,12 @@ function renderCalendar() {
   let foundFirstPendingInCalendar = false;
 
   months.forEach((m) => {
-    const monthClasses = ALL_CLASSES.filter((c) => c.month === m);
+    const monthClasses = getScheduleClasses().filter((c) => c.month === m);
 
     const filteredClasses = monthClasses.filter((c) => {
       if (currentFilter === "ALL") return true;
       if (currentFilter === "MAKEUP") return c.isMakeup;
+      if (hasRoutine()) return c.code && routineFilterKey(c) === currentFilter;
       if (currentFilter === "SAT-TUE")
         return c.track === "SAT" || c.track === "TUE";
       if (currentFilter === "SUN-WED")
@@ -1227,6 +1292,7 @@ function renderCalendar() {
             }
           </div>
 
+          ${routineCardHtml(item)}
           ${meetingLinkHtml}
           ${evalsHtml}
         </div>
@@ -1381,8 +1447,8 @@ function renderDashboardTimeline() {
 }
 
 function renderDashboard() {
-  const total = 48;
-  const done = completedClasses.size;
+  const total = hasRoutine() ? getScheduleClasses().length : 48;
+  const done = hasRoutine() ? getScheduleDone() : completedClasses.size;
   const remaining = total - done;
   const percentage = Math.round((done / total) * 100);
 
@@ -1395,9 +1461,10 @@ function renderDashboard() {
   if (oPct) oPct.innerText = `${percentage}%`;
   if (dComp) dComp.innerText = done;
   if (dRem) dRem.innerText = `${remaining} classes remaining for full credit.`;
+  updateRoutineTotalLabel(total);
 
-  const regularClasses = ALL_CLASSES.filter((c) => !c.isMakeup);
-  const makeupClasses = ALL_CLASSES.filter((c) => c.isMakeup);
+  const regularClasses = getScheduleClasses().filter((c) => !c.isMakeup);
+  const makeupClasses = getScheduleClasses().filter((c) => c.isMakeup);
 
   const regDone = regularClasses.filter((c) =>
     completedClasses.has(c.id),
@@ -1411,10 +1478,12 @@ function renderDashboard() {
   const mLbl = document.getElementById("makeup-count-label");
   const mBar = document.getElementById("makeup-progress-bar");
 
-  if (rLbl) rLbl.innerText = `${regDone}/43`;
-  if (rBar) rBar.style.width = `${(regDone / 43) * 100}%`;
-  if (mLbl) mLbl.innerText = `${makeupDone}/5`;
-  if (mBar) mBar.style.width = `${(makeupDone / 5) * 100}%`;
+  if (rLbl) rLbl.innerText = `${regDone}/${regularClasses.length}`;
+  if (rBar)
+    rBar.style.width = `${(regDone / (regularClasses.length || 1)) * 100}%`;
+  if (mLbl) mLbl.innerText = `${makeupDone}/${makeupClasses.length}`;
+  if (mBar)
+    mBar.style.width = `${(makeupDone / (makeupClasses.length || 1)) * 100}%`;
 
   let testCnt = 0,
     presCnt = 0,
@@ -1488,9 +1557,9 @@ function renderDashboard() {
   if (!trackGrid) return;
   trackGrid.innerHTML = "";
 
-  trackConfigs.forEach((config) => {
+  getTrackConfigs(trackConfigs).forEach((config) => {
     // Collect all class objects matching single or combined track days
-    const trackClasses = ALL_CLASSES.filter((c) =>
+    const trackClasses = (config.classes || ALL_CLASSES).filter((c) =>
       config.tracks.includes(c.track),
     );
 
@@ -1560,7 +1629,7 @@ function renderDashboard() {
     timeline.innerHTML = "";
     let foundFirstPending = false;
 
-    ALL_CLASSES.forEach((c) => {
+    getScheduleClasses().forEach((c) => {
       const isPast = isDatePassed(c.dateStr);
       const isDone = completedClasses.has(c.id) || isPast;
 
@@ -1587,6 +1656,7 @@ function renderDashboard() {
           <span class="font-extrabold w-16 ${isDone ? "text-emerald-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${c.month} ${c.dayNum}</span>
           <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-white border border-slate-200 text-slate-700"}">${c.dayName}</span>
           <span class="text-slate-600 font-medium">Track: <strong class="text-slate-800">${c.track}</strong> (#${c.classNo})</span>
+          ${routineTagHtml(c)}
         </div>
         <div>
           ${
@@ -1633,6 +1703,7 @@ function renderDashboard() {
           <div>
             <h4 class="font-bold text-xs text-slate-900">${c.month} ${c.dayNum} (${c.dayName})</h4>
             <p class="text-[11px] text-slate-500 mt-0.5">Counts as ${c.makeupFor} Class #${c.classNo}</p>
+            ${routineTagHtml(c)}
           </div>
         </div>
         <span class="px-3 py-1.5 rounded-lg text-xs font-semibold ${isDone ? "bg-emerald-600 text-white" : "bg-amber-100 text-amber-800"}">
@@ -1648,7 +1719,7 @@ function renderDashboard() {
 
 function openEvalModal(dateId, dateDisplay, event) {
   if (event) event.stopPropagation();
-  const classObj = ALL_CLASSES.find((c) => c.id === dateId);
+  const classObj = findScheduleClass(dateId);
 
   // Prevent opening modal for past dates
   if (classObj && isDatePassed(classObj.dateStr)) {
@@ -1663,6 +1734,7 @@ function openEvalModal(dateId, dateDisplay, event) {
   if (dId) dId.value = dateId;
   if (dStr) dStr.value = classObj ? classObj.dateStr : "2026-10-27";
   if (dDisp) dDisp.value = dateDisplay;
+  if (classObj) prefillRoutineEval(classObj);
   if (modal) modal.classList.remove("hidden");
 }
 
@@ -1705,7 +1777,7 @@ function openEditEvalModal(evalId, event) {
   const ev = userEvaluations.find((e) => e.id === evalId);
   if (!ev) return;
 
-  const classObj = ALL_CLASSES.find((c) => c.id === ev.dateId);
+  const classObj = findScheduleClass(ev.dateId);
   const dateDisplay = classObj
     ? `${classObj.month} ${classObj.dayNum}, 2026`
     : ev.dateStr;
@@ -1762,7 +1834,7 @@ function confirmDeleteEvaluation() {
 
 function openMeetingModal(tileId, dateDisplay, event) {
   if (event) event.stopPropagation();
-  const classObj = ALL_CLASSES.find((c) => c.id === tileId);
+  const classObj = findScheduleClass(tileId);
 
   // Prevent adding meeting links for past dates
   if (classObj && isDatePassed(classObj.dateStr)) {
@@ -2441,7 +2513,8 @@ function confirmReset() {
   closeResetModal();
 }
 
-function syncPastClassesAndEvents() {
+function syncPastClassesAndEvents(automatic = true) {
+  syncPastRoutineClasses();
   ALL_CLASSES.forEach((c) => {
     if (isDatePassed(c.dateStr)) {
       completedClasses.add(c.id);
@@ -2465,7 +2538,7 @@ function syncPastClassesAndEvents() {
     }
   });
 
-  saveState();
+  saveState(automatic);
 }
 
 // Initialize App
@@ -2489,7 +2562,15 @@ window.addEventListener(
   60000,
 ); // 60 seconds delay to ensure Firebase is initialized
 
-window.addEventListener("storage", () => {
+window.addEventListener("storage", (event) => {
+  if (
+    syncCode &&
+    (!db || !isSyncReady) &&
+    [STORAGE_KEY, EVENTS_STORAGE_KEY, EVALS_STORAGE_KEY, EXAMS_STORAGE_KEY, LINKS_STORAGE_KEY, ROUTINE_STORAGE_KEY].includes(event.key)
+  ) {
+    pendingSyncChanges = true;
+    localStorage.setItem(SYNC_PENDING_KEY, syncCode);
+  }
   loadState();
   syncPastClassesAndEvents();
   renderCalendar();
