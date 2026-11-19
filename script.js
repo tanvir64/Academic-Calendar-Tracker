@@ -932,7 +932,7 @@ function switchPage(page) {
 
   if (page === "calendar") {
     renderCalendar();
-    // scrollToCurrentMonth();
+    scrollToCurrentMonth();
   } else if (page === "dashboard") renderDashboard();
   else if (page === "assessments") renderEvaluations();
   else if (page === "events") renderEvents();
@@ -2482,7 +2482,7 @@ window.addEventListener(
     updateNavigation();
     setupFirebaseSync();
     if (currentPage === "calendar") {
-      // scrollToCurrentMonth();
+      scrollToCurrentMonth();
     }
     lucide.createIcons();
   },
