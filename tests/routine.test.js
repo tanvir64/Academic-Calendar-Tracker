@@ -9,7 +9,7 @@ function setup() {
     ALL_CLASSES: [
       { id: "sat", dayName: "SAT", isMakeup: false },
       { id: "tue", dayName: "TUE", isMakeup: false },
-      { id: "makeup", dayName: "THU", isMakeup: true, follows: "SAT" },
+      { id: "makeup", dayName: "THU", isMakeup: true, makeupFor: "SAT" },
       { id: "generic", dayName: "THU", isMakeup: true },
     ],
     completedClasses: new Set(),
@@ -36,6 +36,7 @@ test("sections have distinct schedule identities and paired days", () => {
       paired: getPairedRoutineRow(getRoutine()[1]),
       duplicate: hasRoutineKey(getRoutine(), normalizeRoutineRow("SAT", "09:00", "10:00", "CSE1111", "Course", "R", "a").row),
       distinct: hasRoutineKey(getRoutine(), normalizeRoutineRow("SAT", "09:00", "10:00", "CSE1111", "Course", "R", "C").row),
+      makeupCard: routineCardHtml(getScheduleClasses().find(c => c.id === "makeup|CSE1111|A")),
     });
   `, ctx);
   const data = JSON.parse(result);
@@ -48,6 +49,7 @@ test("sections have distinct schedule identities and paired days", () => {
   assert.equal(data.paired.section, "A");
   assert.equal(data.duplicate, true);
   assert.equal(data.distinct, false);
+  assert.match(data.makeupCard, /Online, follows SAT/);
 });
 
 test("old CSV rows and section validation remain compatible", () => {
@@ -102,10 +104,8 @@ test("course filters distinguish sections and deduplicate paired days", () => {
   const ctx = setup();
   const result = vm.runInContext(`
     routineClasses = [
-      { day: "SAT", start: "09:00", end: "10:00", code: "CSE1111", title: "Course", room: "R" },
-      { day: "SAT", start: "10:00", end: "11:00", code: "CSE1111", title: "Course", room: "R", section: "A" },
-      { day: "TUE", start: "10:00", end: "11:00", code: "CSE1111", title: "Course", room: "R", section: "A" },
-      { day: "SAT", start: "11:00", end: "12:00", code: "CSE1111", title: "Course", room: "R", section: "B 1" },
+      { day: "SAT", start: "08:31", end: "09:50", code: "CSE1111", title: "Course", room: "R", section: "A" },
+      { day: "SAT", start: "09:51", end: "11:10", code: "CSE1111", title: "Course", room: "R", section: "B" }
     ];
     JSON.stringify(getRoutineFilters().map(routineFilterKey));
   `, ctx);

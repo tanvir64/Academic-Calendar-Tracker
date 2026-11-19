@@ -90,7 +90,6 @@ const ALL_CLASSES = [
     classNo: 2,
     isMakeup: true,
     makeupFor: "SAT",
-    follows: "SAT",
   },
   {
     id: "nov-08",
@@ -132,7 +131,6 @@ const ALL_CLASSES = [
     classNo: 3,
     isMakeup: true,
     makeupFor: "SAT",
-    follows: "SAT",
   },
   {
     id: "nov-14",
@@ -224,7 +222,6 @@ const ALL_CLASSES = [
     classNo: 5,
     isMakeup: true,
     makeupFor: "SUN",
-    follows: "SUN",
   },
   {
     id: "nov-28",
@@ -298,7 +295,6 @@ const ALL_CLASSES = [
     classNo: 7,
     isMakeup: true,
     makeupFor: "WED",
-    follows: "WED",
   },
   {
     id: "dec-19",
@@ -390,7 +386,6 @@ const ALL_CLASSES = [
     classNo: 9,
     isMakeup: true,
     makeupFor: "SAT",
-    follows: "SAT",
   },
 
   // January 2027

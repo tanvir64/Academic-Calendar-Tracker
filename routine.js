@@ -194,8 +194,8 @@ function getScheduleClasses() {
 
   const items = [];
   ALL_CLASSES.forEach((base) => {
-    // A makeup date stands in for the weekday named in `follows`
-    const day = base.isMakeup ? base.follows : base.dayName;
+    // A makeup date stands in for the weekday named in `makeupFor`
+    const day = base.isMakeup ? base.makeupFor : base.dayName;
     if (!day) {
       items.push(base);
       return;
@@ -270,7 +270,7 @@ function updateRoutineTotalLabel(total) {
 function routineCardHtml(item) {
   if (!item.code) return "";
   const where = item.isMakeup
-    ? `Online, follows ${item.follows}`
+    ? `Online, follows ${item.makeupFor}`
     : escapeRoutineHtml(item.room);
   return `
     <div class="mt-2 p-1.5 rounded-lg border border-slate-200 bg-white/70 text-[10px] font-semibold">
@@ -354,7 +354,7 @@ function hasRoutineKey(rows, row) {
 
 function moveRoutineSectionData(original, updated) {
   const keys = ALL_CLASSES.filter((c) =>
-    (c.isMakeup ? c.follows : c.dayName) === original.day,
+    (c.isMakeup ? c.makeupFor : c.dayName) === original.day,
   ).map((c) => [routineClassId(c.id, original), routineClassId(c.id, updated)]);
   const hasData = (key) =>
     completedClasses.has(key) || makeupMeetingLinks[key] ||
@@ -824,7 +824,7 @@ function buildRoutineModal() {
 
     const [h, m] = startTime.split(":").map(Number);
     const totalMinutes = h * 60 + m;
-    const additionalMinutes = isTheoryRoutineCode(codeValue) ? 79 : 119;
+    const additionalMinutes = isTheoryRoutineCode(codeValue) ? 79 : 149;
     const newTotalMinutes = totalMinutes + additionalMinutes;
 
     const newHours = Math.floor(newTotalMinutes / 60);
