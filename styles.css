@@ -1,41 +1,666 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 
-body {
-  font-family: "Plus Jakarta Sans", sans-serif;
+:root {
+  --bg-deepest: #ffffff;
+  --bg-page: #fafafa;
+  --bg-card: #ffffff;
+  --bg-raised: #f4f4f5;
+  --bg-hover: #e4e4e7;
+  --bg-active-tint: #f0f9ff;
+
+  --border-hairline: rgba(23, 23, 23, 0.08);
+  --border-strong: rgba(23, 23, 23, 0.16);
+
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-muted: #737373;
+
+  --accent: #0284c7;
+  --accent-hover: #0369a1;
+  --positive: #16a34a;
+  --warning: #d97706;
+  --negative: #dc2626;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --ease-unslop: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+html,
+html.dark {
+  background-color: var(--bg-page) !important;
+  color-scheme: light;
+}
+
+body,
+body.dark-glass {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-page) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Consistent Lucide icon stroke & alignment */
+svg.lucide {
+  stroke-width: 1.5;
+}
+
+/* Custom light scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(203, 213, 225, 0.2);
+  background: var(--bg-raised);
+  border-radius: 999px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 4px;
+  background: rgba(23, 23, 23, 0.16);
+  border-radius: 999px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.6);
+  background: rgba(23, 23, 23, 0.28);
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
+/* Base card surface */
+.glass-card,
+body.dark-glass .glass-card,
+body.dark-glass section .bg-white,
+body.dark-glass section .bg-white\/90 {
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  box-shadow: var(--shadow-card) !important;
+  color: var(--text-primary) !important;
 }
 
+/* Track accent helpers */
 .tile-sat {
-  border-top: 4px solid #6366f1;
+  border-left: 3px solid #6366f1;
 }
 .tile-sun {
-  border-top: 4px solid #0284c7;
+  border-left: 3px solid var(--accent);
 }
 .tile-tue {
-  border-top: 4px solid #10b981;
+  border-left: 3px solid var(--positive);
 }
 .tile-wed {
-  border-top: 4px solid #8b5cf6;
+  border-left: 3px solid #8b5cf6;
 }
 .tile-makeup {
-  border-top: 4px solid #f59e0b;
+  border-left: 3px solid var(--warning);
+}
+
+/* ==========================================================================
+   HEADER & NAVIGATION
+   ========================================================================== */
+
+body.dark-glass header {
+  background-color: var(--bg-deepest) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid var(--border-hairline) !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass header h1 {
+  background-image: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass header nav {
+  position: relative;
+  background-color: var(--bg-raised) !important;
+  border: 1px solid var(--border-hairline) !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+#nav-pill-indicator {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+  z-index: 1;
+  background-color: var(--accent);
+  border: 4px solid var(--bg-deepest);
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+  opacity: 0;
+  transition:
+    transform 320ms var(--ease-unslop),
+    opacity 150ms var(--ease-unslop);
+}
+
+body.dark-glass header nav button {
+  position: relative;
+  z-index: 2;
+  color: var(--text-muted) !important;
+  border: 0 !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  overflow: visible !important;
+  transition: color 180ms var(--ease-unslop) !important;
+}
+
+body.dark-glass header nav button:hover {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+  transform: none !important;
+}
+
+body.dark-glass header nav button svg {
+  color: var(--text-muted) !important;
+  filter: none !important;
+  transform: translateY(0);
+  transition:
+    transform 320ms var(--ease-unslop),
+    color 180ms var(--ease-unslop) !important;
+}
+
+@media (min-width: 768px) {
+  body.dark-glass header nav button svg {
+    transform: translateY(-6px);
+  }
+}
+
+body.dark-glass header nav button:hover svg {
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass header nav button .nav-label {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translate(-50%, 6px);
+  opacity: 0;
+  color: var(--text-muted);
+  transition:
+    transform 260ms var(--ease-unslop),
+    opacity 200ms var(--ease-unslop),
+    color 180ms var(--ease-unslop);
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  body.dark-glass header nav button .nav-label {
+    transform: translate(-50%, 0);
+    opacity: 0.85;
+  }
+}
+
+body.dark-glass header nav button .nav-badge {
+  position: absolute;
+  top: 6px;
+  right: calc(50% - 20px);
+}
+
+/* Active navigation tab (icon lifts into gliding #nav-pill-indicator circle) */
+body.dark-glass header nav button.bg-white,
+body.dark-glass header nav button[class*="bg-indigo-500"],
+body.dark-glass header nav button.font-bold {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--accent) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+body.dark-glass header nav button.bg-white svg,
+body.dark-glass header nav button[class*="bg-indigo-500"] svg,
+body.dark-glass header nav button.font-bold svg,
+body.dark-glass header nav button.text-brand-700 svg {
+  color: #ffffff !important;
+  transform: translateY(-22px) !important;
+  filter: none !important;
+}
+
+body.dark-glass header nav button.bg-white .nav-label,
+body.dark-glass header nav button.font-bold .nav-label,
+body.dark-glass header nav button.text-brand-700 .nav-label {
+  opacity: 1 !important;
+  transform: translate(-50%, 0) !important;
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   FILTER BUTTONS & BANNERS
+   ========================================================================== */
+
+body.dark-glass .filter-btn.bg-white,
+body.dark-glass .eval-f-btn.bg-white,
+body.dark-glass .eval-status-btn.bg-white,
+body.dark-glass .eval-urgency-btn.bg-white,
+body.dark-glass .evt-f-btn.bg-white {
+  background-color: var(--bg-raised) !important;
+  background-image: none !important;
+  border-color: var(--border-hairline) !important;
+  color: var(--text-secondary) !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass .filter-btn.bg-white:hover,
+body.dark-glass .eval-f-btn.bg-white:hover,
+body.dark-glass .eval-status-btn.bg-white:hover,
+body.dark-glass .eval-urgency-btn.bg-white:hover,
+body.dark-glass .evt-f-btn.bg-white:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-strong) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Active filter pills */
+body.dark-glass .filter-btn.bg-gradient-to-r,
+body.dark-glass .filter-btn.bg-indigo-600,
+body.dark-glass .eval-f-btn.bg-indigo-600,
+body.dark-glass .eval-status-btn.bg-indigo-600,
+body.dark-glass .eval-urgency-btn.bg-indigo-600,
+body.dark-glass .evt-f-btn.bg-indigo-600,
+body.dark-glass .filter-btn[class*="from-indigo-600"] {
+  background-color: var(--accent) !important;
+  background-image: none !important;
+  border-color: var(--accent) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass #filter-MAKEUP[class*="from-amber-500"] {
+  background-color: var(--warning) !important;
+  background-image: none !important;
+  border-color: var(--warning) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Auto-sync banner */
+body.dark-glass #page-calendar > div.bg-gradient-to-r {
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  border-color: var(--border-hairline) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ==========================================================================
+   CALENDAR MONTH CONTAINERS & CLASS TILES
+   ========================================================================== */
+
+body.dark-glass #calendar-container > div[id^="month-card-"] {
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+body.dark-glass #calendar-container > div[id^="month-card-"] > button {
+  background-color: var(--bg-raised) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+  transition: border-color 150ms var(--ease-unslop), background-color 150ms var(--ease-unslop) !important;
+}
+
+body.dark-glass #calendar-container > div[id^="month-card-"] > button:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-strong) !important;
+}
+
+/* Month header status pills */
+body.dark-glass #calendar-container > div[id^="month-card-"] > button .bg-blue-300,
+body.dark-glass #calendar-container > div[id^="month-card-"] > button .bg-emerald-100,
+body.dark-glass #calendar-container > div[id^="month-card-"] > button .bg-white\/20 {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-hairline) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 1. Regular upcoming class tiles */
+body.dark-glass #calendar-container div[id^="month-sec-"] > div {
+  background-color: var(--bg-raised) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(2, 132, 199, 0.35) !important;
+  border-left: 3px solid var(--accent) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition:
+    background-color 150ms var(--ease-unslop),
+    border-color 150ms var(--ease-unslop) !important;
+}
+
+body.dark-glass #calendar-container div[id^="month-sec-"] > div:hover {
+  transform: none !important;
+  background-color: #ededef !important;
+  background-image: none !important;
+  border-color: rgba(2, 132, 199, 0.6) !important;
+  border-left-color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* 2. Completed class tiles */
+body.dark-glass #calendar-container div[id^="month-sec-"] > div.border-emerald-500 {
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-left: 3px solid var(--positive) !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass #calendar-container div[id^="month-sec-"] > div.border-emerald-500:hover {
+  background-color: var(--bg-raised) !important;
+  border-color: var(--border-strong) !important;
+  border-left-color: var(--positive) !important;
+}
+
+/* 3. Online makeup tiles */
+body.dark-glass #calendar-container div[id^="month-sec-"] > div.border-amber-300 {
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-left: 3px solid var(--warning) !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass #calendar-container div[id^="month-sec-"] > div.border-amber-300:hover {
+  background-color: var(--bg-raised) !important;
+  border-color: var(--border-strong) !important;
+  border-left-color: var(--warning) !important;
+}
+
+/* 4. Immediate "Next Up" class tile (Signature Moment) */
+body.dark-glass #first-pending-calendar-tile {
+  background-color: var(--bg-active-tint) !important;
+  background-image: none !important;
+  border: 1px solid rgba(2, 132, 199, 0.35) !important;
+  border-left: 3px solid var(--accent) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* Tile typography */
+body.dark-glass #calendar-container .text-emerald-900,
+body.dark-glass #calendar-container .text-amber-950,
+body.dark-glass #calendar-container .text-slate-900 {
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass #calendar-container .text-emerald-700,
+body.dark-glass #calendar-container .text-slate-500 {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-glass #calendar-container .text-emerald-600 {
+  color: var(--positive) !important;
+}
+
+body.dark-glass #calendar-container .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+body.dark-glass #calendar-container .border-emerald-200,
+body.dark-glass #calendar-container .border-slate-100 {
+  border-color: var(--border-hairline) !important;
+}
+
+/* Tile meta badges & action buttons */
+body.dark-glass #calendar-container .bg-indigo-100,
+body.dark-glass #calendar-container .bg-blue-100,
+body.dark-glass #calendar-container .bg-emerald-100,
+body.dark-glass #calendar-container .bg-purple-100,
+body.dark-glass #calendar-container .bg-brand-50,
+body.dark-glass #calendar-container .bg-amber-100,
+body.dark-glass #calendar-container .bg-amber-200 {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-hairline) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-glass #calendar-container .bg-emerald-100 {
+  color: var(--positive) !important;
+}
+
+body.dark-glass #calendar-container .bg-amber-100,
+body.dark-glass #calendar-container .bg-amber-200 {
+  color: var(--warning) !important;
+}
+
+body.dark-glass #calendar-container button.bg-slate-100 {
+  background-color: var(--bg-card) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-hairline) !important;
+}
+
+body.dark-glass #calendar-container button.bg-brand-50 {
+  background-color: rgba(2, 132, 199, 0.08) !important;
+  color: var(--accent) !important;
+  border: 1px solid rgba(2, 132, 199, 0.25) !important;
+}
+
+body.dark-glass #calendar-container button.bg-brand-50:hover {
+  background-color: rgba(2, 132, 199, 0.14) !important;
+  color: var(--accent-hover) !important;
+}
+
+body.dark-glass #calendar-container .bg-amber-500 {
+  background-color: var(--accent) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   DASHBOARD TRACK CARDS & TIMELINE
+   ========================================================================== */
+
+body.dark-glass #track-cards-grid > div {
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: border-color 150ms var(--ease-unslop) !important;
+}
+
+body.dark-glass #track-cards-grid > div:hover {
+  transform: none !important;
+  border-color: var(--border-strong) !important;
+}
+
+body.dark-glass #track-cards-grid h3 {
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass #track-cards-grid .bg-emerald-50 {
+  background-color: rgba(22, 163, 74, 0.08) !important;
+  color: var(--positive) !important;
+  border-color: rgba(22, 163, 74, 0.25) !important;
+}
+
+body.dark-glass #track-cards-grid .bg-brand-600 {
+  background-color: var(--accent) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass #track-cards-grid .bg-slate-100 {
+  background-color: var(--bg-raised) !important;
+  border-color: var(--border-hairline) !important;
+  color: var(--text-muted) !important;
+}
+
+body.dark-glass #track-cards-grid .bg-emerald-500 {
+  background-color: var(--positive) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Schedule Timeline */
+body.dark-glass #schedule-timeline > div {
+  background-color: var(--bg-raised) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 10px !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass #schedule-timeline > div.bg-emerald-50\/70 {
+  background-color: var(--bg-card) !important;
+  border-left: 3px solid var(--positive) !important;
+}
+
+body.dark-glass #schedule-timeline #first-pending-timeline-item {
+  background-color: var(--bg-active-tint) !important;
+  background-image: none !important;
+  border: 1px solid rgba(2, 132, 199, 0.35) !important;
+  border-left: 3px solid var(--accent) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+body.dark-glass #schedule-timeline .bg-white,
+body.dark-glass #schedule-timeline .bg-amber-100 {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-hairline) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-glass #schedule-timeline .bg-emerald-100 {
+  background-color: rgba(22, 163, 74, 0.08) !important;
+  border-color: rgba(22, 163, 74, 0.25) !important;
+  color: var(--positive) !important;
+}
+
+body.dark-glass #schedule-timeline .bg-amber-500 {
+  background-color: var(--accent) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+/* Thursday Online Makeup Schedule */
+body.dark-glass #makeup-schedule-list > div {
+  background-color: var(--bg-raised) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-left: 3px solid var(--warning) !important;
+  border-radius: 10px !important;
+}
+
+body.dark-glass #makeup-schedule-list > div.bg-emerald-50 {
+  background-color: var(--bg-card) !important;
+  border-left: 3px solid var(--positive) !important;
+}
+
+body.dark-glass #makeup-schedule-list h4 {
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass #makeup-schedule-list p {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-glass #makeup-schedule-list .bg-amber-100 {
+  background-color: rgba(217, 119, 6, 0.1) !important;
+  color: var(--warning) !important;
+  border: 1px solid rgba(217, 119, 6, 0.25) !important;
+}
+
+/* ==========================================================================
+   GLOBAL TEXT, BORDERS & MODALS
+   ========================================================================== */
+
+body.dark-glass #page-dashboard .bg-slate-100,
+body.dark-glass #page-dashboard .bg-slate-50 {
+  background-color: var(--bg-raised) !important;
+  border-color: var(--border-hairline) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-glass .text-slate-900,
+body.dark-glass .text-slate-950,
+body.dark-glass .text-slate-800,
+body.dark-glass .text-slate-700 {
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass .text-slate-600,
+body.dark-glass .text-slate-500 {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-glass .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+body.dark-glass .border-slate-200,
+body.dark-glass .border-slate-200\/80,
+body.dark-glass .border-slate-100,
+body.dark-glass .border-indigo-100\/80 {
+  border-color: var(--border-hairline) !important;
+}
+
+/* Modals */
+body.dark-glass [id$="-modal"] {
+  background-color: rgba(23, 23, 23, 0.35) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.dark-glass [id$="-modal"] > div {
+  background-color: var(--bg-card) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-floating) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass [id$="-modal"] input,
+body.dark-glass [id$="-modal"] select {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 8px !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-glass [id$="-modal"] input:focus,
+body.dark-glass [id$="-modal"] select:focus {
+  border-color: var(--accent) !important;
+  outline: 2px solid rgba(2, 132, 199, 0.2) !important;
+  outline-offset: 0 !important;
+}
+
+body.dark-glass [id$="-modal"] input[readonly] {
+  background-color: var(--bg-raised) !important;
+  border-color: var(--border-hairline) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Focus ring for keyboard accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

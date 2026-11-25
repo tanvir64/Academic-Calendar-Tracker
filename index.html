@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" class="h-full bg-slate-50">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UIU Fall 2026 Academic Dashboard & Tracker</title>
+    <title>UIU Fall 2026 Academic Dashboard &amp; Tracker</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -15,17 +15,18 @@
 
     <script>
       tailwind.config = {
+        darkMode: "class",
         theme: {
           extend: {
             colors: {
               brand: {
-                50: "#f0f3ff",
-                100: "#e0e7ff",
-                200: "#c7d2fe",
-                500: "#6366f1",
-                600: "#4f46e5",
-                700: "#4338ca",
-                900: "#312e81",
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                900: "#0c4a6e",
               },
             },
           },
@@ -35,61 +36,55 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body
-    class="min-h-screen flex flex-col font-sans bg-gradient-to-br from-slate-100 via-indigo-50/40 to-slate-100 text-slate-800 antialiased selection:bg-brand-500 selection:text-white"
+    class="dark-glass min-h-screen flex flex-col font-sans text-[#171717] antialiased selection:bg-[#0284c7] selection:text-white"
   >
     <!-- Header Navigation -->
-    <header
-      class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-indigo-100/80 shadow-sm"
-    >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+    <header class="sticky top-0 z-50 border-b border-[#171717]/[0.08]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
-          class="flex flex-col md:flex-row md:items-center justify-between py-2.5 sm:py-3 gap-2 min-w-0"
+          class="flex flex-col lg:flex-row lg:items-center justify-between py-3 gap-3 min-w-0"
         >
           <!-- Logo & Title -->
           <div
-            class="flex items-center justify-between w-full md:w-auto shrink-0 min-w-0 gap-2"
+            class="flex items-center justify-between w-full lg:w-auto shrink-0 min-w-0 gap-3"
           >
-            <div class="flex items-center gap-2.5 shrink-0 min-w-0">
-              <div
-                class="p-2 sm:p-2.5 bg-gradient-to-tr from-white-700 to-orange-500 text-white rounded-2xl shadow-md shadow-brand-500/30 shrink-0"
+            <div class="flex items-center gap-3 shrink-0 min-w-0">
+              <a
+                href="index.html"
+                class="p-1.5 bg-[#f4f4f5] rounded-lg border border-[#171717]/[0.08] shrink-0 hover:border-[#171717]/[0.16] transition-colors duration-150"
               >
-                <!-- use logo.png from this folder -->
                 <img
                   src="logo.png"
                   alt="UIU Logo"
                   class="w-6 h-6 sm:w-7 sm:h-7 object-contain"
                 />
-                <!-- make the logo responsive, clicking this brings the home page -->
-                <a href="index.html" class="block"> </a>
-              </div>
+              </a>
               <div class="min-w-0">
                 <h1
-                  class="font-extrabold text-xs sm:text-base md:text-lg leading-tight bg-gradient-to-r from-slate-900 via-brand-900 to-indigo-900 bg-clip-text text-transparent truncate"
+                  class="font-medium text-sm sm:text-base leading-tight text-[#171717] truncate"
                 >
                   UIU Calendar 263
                 </h1>
-                <p
-                  class="text-[9px] sm:text-[11px] font-semibold text-brand-600 truncate"
-                >
-                  Academic Term Classes & Evaluations
+                <p class="text-xs text-[#737373] truncate">
+                  Fall 2026 academic term
                 </p>
               </div>
             </div>
 
             <!-- Mobile Actions -->
-            <div class="flex items-center gap-2 shrink-0 md:hidden">
+            <div class="flex items-center gap-2 shrink-0 lg:hidden">
               <button
                 onclick="openSyncModal()"
-                class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
               >
-                <i data-lucide="cloud" class="w-3.5 h-3.5"></i>
+                <i data-lucide="cloud" class="w-4 h-4 text-[#525252]"></i>
                 <span>Sync</span>
               </button>
               <button
                 onclick="openResetModal()"
-                class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-100/70 border border-rose-200 rounded-xl transition-all shadow-sm"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#525252] hover:text-[#dc2626] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
               >
-                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                 <span>Reset</span>
               </button>
             </div>
@@ -97,72 +92,68 @@
 
           <!-- Navigation Tabs -->
           <nav
-            class="flex items-center gap-1 sm:gap-1.5 bg-slate-200/60 p-1 sm:p-1.5 rounded-2xl border border-slate-300/50 overflow-x-auto min-w-0 w-full md:w-auto custom-scrollbar md:mx-2"
+            id="main-nav"
+            class="relative grid grid-cols-4 items-center bg-[#f4f4f5] px-2 rounded-xl border border-[#171717]/[0.08] w-full lg:w-[540px] lg:mx-2 mt-3 lg:mt-2 h-14"
           >
+            <span id="nav-pill-indicator" aria-hidden="true"></span>
             <button
               id="nav-calendar"
               onclick="switchPage('calendar')"
-              class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 bg-white text-brand-700 shadow-sm whitespace-nowrap shrink-0"
+              class="relative z-[2] flex flex-col items-center justify-center h-full w-full text-xs font-medium text-[#171717]"
             >
-              <i
-                data-lucide="calendar"
-                class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-600"
-              ></i>
-              <span>Calendar Grid</span>
+              <i data-lucide="calendar" class="w-4 h-4 shrink-0"></i>
+              <span class="nav-label text-[10px] sm:text-[11px] leading-none whitespace-nowrap">Calendar</span>
             </button>
             <button
               id="nav-dashboard"
               onclick="switchPage('dashboard')"
-              class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/50 whitespace-nowrap shrink-0"
+              class="relative z-[2] flex flex-col items-center justify-center h-full w-full text-xs font-medium text-[#737373]"
             >
-              <i
-                data-lucide="layout-dashboard"
-                class="w-3.5 h-3.5 sm:w-4 sm:h-4"
-              ></i>
-              <span>Class Trackers</span>
+              <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+              <span class="nav-label text-[10px] sm:text-[11px] leading-none whitespace-nowrap">Trackers</span>
             </button>
             <button
               id="nav-assessments"
               onclick="switchPage('assessments')"
-              class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/50 whitespace-nowrap shrink-0 relative"
+              class="relative z-[2] flex flex-col items-center justify-center h-full w-full text-xs font-medium text-[#737373]"
             >
-              <i data-lucide="pen-tool" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-              <span>Upcoming Assessments</span>
+              <i data-lucide="pen-tool" class="w-4 h-4 shrink-0"></i>
+              <span class="nav-label text-[10px] sm:text-[11px] leading-none whitespace-nowrap">Assessments</span>
               <span
                 id="nav-eval-badge"
-                class="ml-0.5 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-extrabold rounded-full bg-rose-500 text-white shadow-sm shadow-rose-500/40 hidden"
+                class="nav-badge font-mono tabular-nums text-[10px] font-medium text-[#dc2626] hidden"
                 >0</span
               >
             </button>
             <button
               id="nav-events"
               onclick="switchPage('events')"
-              class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/50 whitespace-nowrap shrink-0 relative"
+              class="relative z-[2] flex flex-col items-center justify-center h-full w-full text-xs font-medium text-[#737373]"
             >
-              <i data-lucide="bell" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-              <span>Important Events</span>
+              <i data-lucide="bell" class="w-4 h-4 shrink-0"></i>
+              <span class="nav-label text-[10px] sm:text-[11px] leading-none whitespace-nowrap">Events</span>
               <span
                 id="nav-events-badge"
-                class="ml-0.5 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-extrabold rounded-full bg-rose-500 text-white shadow-sm shadow-rose-500/40 hidden"
+                class="nav-badge font-mono tabular-nums text-[10px] font-medium text-[#dc2626] hidden"
                 >0</span
               >
             </button>
           </nav>
 
           <!-- Desktop Actions -->
-          <div class="hidden md:flex items-center gap-2 shrink-0">
+          <div class="hidden lg:flex items-center gap-2 shrink-0">
             <button
               onclick="openSyncModal()"
-              class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition-all shadow-sm"
+              class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
             >
-              <i data-lucide="cloud" class="w-4 h-4 text-brand-600"></i>
-              <span>Sync Devices</span>
+              <i data-lucide="cloud" class="w-4 h-4 text-[#525252]"></i>
+              <span>Sync devices</span>
             </button>
             <button
               onclick="openResetModal()"
-              class="flex items-center gap-1 px-3.5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-100/70 border border-rose-200 rounded-xl transition-all shadow-sm"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#525252] hover:text-[#dc2626] bg-transparent hover:bg-[#f4f4f5] border border-transparent hover:border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
             >
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
               <span>Reset</span>
             </button>
           </div>
@@ -176,159 +167,133 @@
       <section id="page-calendar" class="space-y-6">
         <!-- Filter Bar & Quick Stats -->
         <div
-          class="bg-white/90 p-4 rounded-2xl border border-indigo-100/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
+          class="glass-card p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
         >
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center gap-1.5">
             <span
-              class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1"
+              class="text-xs font-medium text-[#737373] mr-2 flex items-center gap-1.5"
             >
-              <i data-lucide="filter" class="w-3.5 h-3.5"></i> Filter:
+              <i data-lucide="filter" class="w-4 h-4 text-[#737373]"></i>
+              Filter
             </span>
             <button
               onclick="setFilter('ALL')"
               id="filter-ALL"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-gradient-to-r from-brand-600 to-indigo-600 text-white border-brand-600 shadow-md shadow-brand-500/20"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#0284c7] text-white border-[#0284c7]"
             >
-              All Classes
+              All classes
             </button>
             <button
               onclick="setFilter('SAT')"
               id="filter-SAT"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               SAT Track
             </button>
             <button
               onclick="setFilter('SUN')"
               id="filter-SUN"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-sky-700 border-sky-200 hover:bg-sky-50"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               SUN Track
             </button>
             <button
               onclick="setFilter('TUE')"
               id="filter-TUE"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               TUE Track
             </button>
             <button
               onclick="setFilter('WED')"
               id="filter-WED"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-purple-700 border-purple-200 hover:bg-purple-50"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               WED Track
             </button>
             <button
               onclick="setFilter('MAKEUP')"
               id="filter-MAKEUP"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#d97706] border-[#171717]/[0.08] hover:bg-[#e4e4e7]"
             >
-              <i data-lucide="video" class="w-3.5 h-3.5 inline mr-1"></i>Online
-              Makeup
+              <i data-lucide="video" class="w-4 h-4 inline mr-1"></i>Online
+              makeup
             </button>
-            <!-- pairwise track -->
             <button
               onclick="setFilter('SAT-TUE')"
               id="filter-SAT-TUE"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-rose-700 border-rose-200 hover:bg-rose-50"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               SAT/TUE Track
             </button>
             <button
               onclick="setFilter('SUN-WED')"
               id="filter-SUN-WED"
-              class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white text-teal-700 border-teal-200 hover:bg-teal-50"
+              class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               SUN/WED Track
             </button>
           </div>
 
           <div
-            class="flex items-center gap-4 text-xs font-bold text-slate-600 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100"
+            class="flex items-center gap-4 text-xs text-[#525252] tabular-nums border-t md:border-t-0 pt-3 md:pt-0 border-[#171717]/[0.08]"
           >
-            <div
-              class="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200"
-            >
-              <div
-                class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"
-              ></div>
-              <span
-                >Completed:
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#16a34a]"></span>
+              <span>
+                Completed
                 <strong
                   id="quick-completed-count"
-                  class="text-emerald-950 font-black"
+                  class="text-[#171717] font-medium ml-1"
                   >0</strong
-                ></span
-              >
+                >
+              </span>
             </div>
-            <div
-              class="flex items-center gap-2 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200"
-            >
-              <div class="w-2.5 h-2.5 rounded-full bg-slate-400"></div>
-              <span
-                >Remaining:
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#737373]"></span>
+              <span>
+                Remaining
                 <strong
                   id="quick-remaining-count"
-                  class="text-slate-900 font-black"
+                  class="text-[#171717] font-medium ml-1"
                   >48</strong
-                ></span
-              >
+                >
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Automatic Completion Sync Banner -->
-        <div
-          class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-300/80 rounded-2xl p-4 text-xs text-emerald-950 flex items-center justify-between gap-3 shadow-sm"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"
-            ></div>
-            <span class="leading-relaxed">
-              <strong>Automatic Past Completion Sync:</strong> Dates that have
-              passed are automatically marked as completed.
-            </span>
-          </div>
-          <span
-            class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-200/80 border border-emerald-300 rounded-lg shrink-0"
-          >
-            Auto Synced
-          </span>
-        </div>
+        <!-- Dynamic Banner: Exam Planning Prompt or Auto-sync info -->
+        <div id="calendar-banner" class="rounded-xl text-xs"></div>
 
         <!-- Calendar Months Container -->
-        <div id="calendar-container" class="space-y-8"></div>
+        <div id="calendar-container" class="space-y-6"></div>
       </section>
 
       <!-- PAGE 2: DASHBOARD & TRACKERS VIEW -->
       <section id="page-dashboard" class="space-y-6 hidden">
         <!-- Dashboard Top Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
           <div
-            class="lg:col-span-4 bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white p-6 rounded-3xl shadow-lg shadow-brand-900/20 flex items-center gap-6 border border-brand-700/50 relative overflow-hidden"
+            class="lg:col-span-4 glass-card text-[#171717] p-6 rounded-2xl flex items-center gap-6"
           >
-            <div
-              class="absolute -right-6 -bottom-6 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"
-            ></div>
             <div class="relative w-24 h-24 flex-shrink-0">
               <svg
                 class="w-full h-full transform -rotate-90"
                 viewBox="0 0 36 36"
               >
                 <path
-                  class="text-white/10"
-                  stroke-width="3.8"
+                  class="text-[#171717]/[0.08]"
+                  stroke-width="3.5"
                   stroke="currentColor"
                   fill="none"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
                 <path
                   id="overall-ring"
-                  class="text-indigo-400 transition-all duration-700 ease-out"
+                  class="text-[#0284c7] transition-[stroke-dasharray] duration-500 ease-out"
                   stroke-dasharray="0, 100"
-                  stroke-width="3.8"
+                  stroke-width="3.5"
                   stroke-linecap="round"
                   stroke="currentColor"
                   fill="none"
@@ -336,84 +301,83 @@
                 />
               </svg>
               <div
-                class="absolute inset-0 flex flex-col items-center justify-center text-center"
+                class="absolute inset-0 flex flex-col items-center justify-center text-center tabular-nums"
               >
                 <span
                   id="overall-percentage"
-                  class="text-2xl font-black text-white"
+                  class="text-xl font-medium text-[#171717]"
                   >0%</span
                 >
-                <span
-                  class="text-[9px] text-indigo-200 font-extrabold tracking-wider"
-                  >DONE</span
-                >
+                <span class="text-[11px] text-[#737373]">Done</span>
               </div>
             </div>
             <div>
-              <h3
-                class="text-xs font-bold text-indigo-200 uppercase tracking-wider"
-              >
-                Overall Completion
+              <h3 class="text-xs font-medium text-[#737373]">
+                Overall completion
               </h3>
-              <p class="text-3xl font-black text-white mt-1">
+              <p class="text-3xl font-medium text-[#171717] tabular-nums mt-1">
                 <span id="dash-completed-total">0</span>
-                <span class="text-sm font-bold text-indigo-300">/ 48</span>
+                <span class="text-sm font-normal text-[#737373]">/ 48</span>
               </p>
               <p
-                class="text-xs text-indigo-200/80 mt-1 font-medium"
+                class="text-xs text-[#525252] mt-1"
                 id="dash-remaining-desc"
               >
-                48 classes remaining to complete term.
+                48 classes remaining to complete term
               </p>
             </div>
           </div>
 
           <div
-            class="lg:col-span-3 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between"
+            class="lg:col-span-3 glass-card p-6 rounded-2xl flex flex-col justify-between"
           >
             <div>
               <h3
-                class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"
+                class="text-xs font-medium text-[#737373] flex items-center gap-2"
               >
-                <i data-lucide="layers" class="w-4 h-4 text-brand-600"></i>
-                Class Breakdown
+                <i data-lucide="layers" class="w-4 h-4 text-[#737373]"></i>
+                Class breakdown
               </h3>
-              <div class="mt-4 space-y-3.5">
+              <div class="mt-4 space-y-4">
                 <div>
-                  <div class="flex justify-between text-xs font-bold mb-1.5">
-                    <span class="text-slate-700">Regular On-Campus</span>
-                    <span id="reg-count-label" class="text-brand-700"
+                  <div
+                    class="flex justify-between text-xs mb-1.5 tabular-nums"
+                  >
+                    <span class="text-[#171717]">Regular on-campus</span>
+                    <span id="reg-count-label" class="text-[#525252]"
                       >0/43</span
                     >
                   </div>
                   <div
-                    class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-200/50"
+                    class="w-full bg-[#f4f4f5] h-1.5 rounded-full overflow-hidden"
                   >
                     <div
                       id="reg-progress-bar"
-                      class="bg-gradient-to-r from-brand-500 to-indigo-600 h-full rounded-full w-0 transition-all duration-500"
+                      class="bg-[#0284c7] h-full rounded-full w-0 transition-[width] duration-500"
                     ></div>
                   </div>
                 </div>
                 <div>
-                  <div class="flex justify-between text-xs font-bold mb-1.5">
-                    <span class="text-amber-800 flex items-center gap-1"
+                  <div
+                    class="flex justify-between text-xs mb-1.5 tabular-nums"
+                  >
+                    <span class="text-[#171717] flex items-center gap-1.5"
                       ><i
                         data-lucide="video"
-                        class="w-3.5 h-3.5 text-amber-600"
+                        class="w-4 h-4 text-[#d97706]"
                       ></i>
-                      Thu Online Makeup</span
+                      Thu online makeup</span
                     >
-                    <span id="makeup-count-label" class="text-amber-700"
+                    <span id="makeup-count-label" class="text-[#d97706]"
                       >0/5</span
                     >
                   </div>
                   <div
-                    class="w-full bg-amber-50 h-2.5 rounded-full overflow-hidden p-0.5 border border-amber-200/50"
+                    class="w-full bg-[#f4f4f5] h-1.5 rounded-full overflow-hidden"
                   >
                     <div
                       id="makeup-progress-bar"
-                      class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full w-0 transition-all duration-500"
+                      class="bg-[#d97706] h-full rounded-full w-0 transition-[width] duration-500"
                     ></div>
                   </div>
                 </div>
@@ -422,114 +386,89 @@
           </div>
 
           <div
-            class="md:col-span-2 lg:col-span-5 bg-white p-6 rounded-3xl border-2 border-brand-200/90 shadow-md shadow-brand-500/5 flex flex-col justify-between"
+            class="md:col-span-2 lg:col-span-5 glass-card p-6 rounded-2xl flex flex-col justify-between"
           >
             <div class="flex justify-between items-center">
               <h3
-                class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2"
+                class="text-xs font-medium text-[#737373] flex items-center gap-2"
               >
-                <div class="p-1.5 bg-rose-100 text-rose-600 rounded-lg">
-                  <i data-lucide="pen-tool" class="w-4 h-4"></i>
-                </div>
-                Planned Assessments Summary
+                <i data-lucide="pen-tool" class="w-4 h-4 text-[#737373]"></i>
+                Planned assessments summary
               </h3>
-              <span
-                class="text-[10px] font-extrabold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200"
-                >Custom Log</span
-              >
+              <span class="font-mono text-xs text-[#737373]">Custom log</span>
             </div>
             <div
-              class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 text-center"
+              class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 tabular-nums"
             >
               <div
-                class="bg-rose-50/90 p-3 rounded-2xl border border-rose-200 flex flex-col items-center justify-between"
+                class="bg-[#f4f4f5] p-3 rounded-xl border border-[#171717]/[0.08] flex flex-col justify-between"
               >
                 <span
                   id="sum-tests-count"
-                  class="text-xl sm:text-2xl font-black text-rose-700"
+                  class="text-2xl font-medium text-[#171717]"
                   >0</span
                 >
-                <p
-                  class="text-[10px] sm:text-[11px] font-bold text-rose-800 uppercase mt-1"
-                >
-                  Class Tests
-                </p>
+                <p class="text-xs text-[#737373] mt-1">Class tests</p>
               </div>
               <div
-                class="bg-indigo-50/90 p-3 rounded-2xl border border-indigo-200 flex flex-col items-center justify-between"
+                class="bg-[#f4f4f5] p-3 rounded-xl border border-[#171717]/[0.08] flex flex-col justify-between"
               >
                 <span
                   id="sum-pres-count"
-                  class="text-xl sm:text-2xl font-black text-indigo-700"
+                  class="text-2xl font-medium text-[#171717]"
                   >0</span
                 >
-                <p
-                  class="text-[10px] sm:text-[11px] font-bold text-indigo-800 uppercase mt-1"
-                >
-                  Presentations
-                </p>
+                <p class="text-xs text-[#737373] mt-1">Presentations</p>
               </div>
               <div
-                class="bg-cyan-50/90 p-3 rounded-2xl border border-cyan-200 flex flex-col items-center justify-between"
+                class="bg-[#f4f4f5] p-3 rounded-xl border border-[#171717]/[0.08] flex flex-col justify-between"
               >
                 <span
                   id="sum-assign-count"
-                  class="text-xl sm:text-2xl font-black text-cyan-700"
+                  class="text-2xl font-medium text-[#171717]"
                   >0</span
                 >
-                <p
-                  class="text-[10px] sm:text-[11px] font-bold text-cyan-800 uppercase mt-1"
-                >
-                  Assignments
-                </p>
+                <p class="text-xs text-[#737373] mt-1">Assignments</p>
               </div>
               <div
-                class="bg-amber-50/90 p-3 rounded-2xl border border-amber-200 flex flex-col items-center justify-between"
+                class="bg-[#f4f4f5] p-3 rounded-xl border border-[#171717]/[0.08] flex flex-col justify-between"
               >
                 <span
                   id="sum-upd-count"
-                  class="text-xl sm:text-2xl font-black text-amber-700"
+                  class="text-2xl font-medium text-[#171717]"
                   >0</span
                 >
-                <p
-                  class="text-[10px] sm:text-[11px] font-bold text-amber-800 uppercase mt-1"
-                >
-                  Updates
-                </p>
+                <p class="text-xs text-[#737373] mt-1">Updates</p>
               </div>
             </div>
           </div>
         </div>
 
         <h2
-          class="text-base font-extrabold text-slate-900 flex items-center gap-2 pt-2"
+          class="text-sm font-medium text-[#171717] flex items-center gap-2 pt-2"
         >
-          <i data-lucide="check-square" class="w-5 h-5 text-brand-600"></i>
-          Track Progress (12 Classes Single Track / 24 Classes Paired Track)
+          <i data-lucide="check-square" class="w-4 h-4 text-[#737373]"></i>
+          Track progress (12 classes single track / 24 classes paired track)
         </h2>
 
         <div
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
           id="track-cards-grid"
         ></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
-          <div
-            class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4"
-          >
+          <div class="glass-card p-6 rounded-2xl space-y-4">
             <h3
-              class="text-sm font-extrabold text-slate-900 flex items-center justify-between"
+              class="text-sm font-medium text-[#171717] flex items-center justify-between"
             >
               <span class="flex items-center gap-2"
                 ><i
                   data-lucide="list-ordered"
-                  class="w-4 h-4 text-brand-600"
+                  class="w-4 h-4 text-[#737373]"
                 ></i>
-                Class Schedule Timeline</span
+                Class schedule timeline</span
               >
-              <span class="text-xs font-semibold text-slate-400"
-                >Chronological</span
-              >
+              <span class="text-xs text-[#737373]">Chronological</span>
             </h3>
             <div
               id="schedule-timeline"
@@ -537,16 +476,14 @@
             ></div>
           </div>
 
-          <div
-            class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4"
-          >
+          <div class="glass-card p-6 rounded-2xl space-y-4">
             <h3
-              class="text-sm font-extrabold text-slate-900 flex items-center gap-2"
+              class="text-sm font-medium text-[#171717] flex items-center gap-2"
             >
-              <i data-lucide="video" class="w-4 h-4 text-amber-600"></i>
-              <span>Thursday Online Makeup Schedule (5 Classes)</span>
+              <i data-lucide="video" class="w-4 h-4 text-[#d97706]"></i>
+              <span>Thursday online makeup schedule (5 classes)</span>
             </h3>
-            <div id="makeup-schedule-list" class="space-y-2.5"></div>
+            <div id="makeup-schedule-list" class="space-y-2"></div>
           </div>
         </div>
       </section>
@@ -555,106 +492,111 @@
       <section id="page-assessments" class="space-y-6 hidden">
         <!-- Header & Category Filters -->
         <div
-          class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
+          class="glass-card p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
         >
           <div>
             <h2
-              class="text-base font-extrabold text-slate-900 flex items-center gap-2"
+              class="text-sm font-medium text-[#171717] flex items-center gap-2"
             >
-              <div
-                class="p-2 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white shadow-sm"
-              >
-                <i data-lucide="pen-tool" class="w-5 h-5"></i>
-              </div>
-              <span>Upcoming Assessments & Examinations</span>
+              <i data-lucide="pen-tool" class="w-4 h-4 text-[#737373]"></i>
+              <span>Upcoming assessments &amp; examinations</span>
             </h2>
-            <p class="text-xs font-medium text-slate-500 mt-0.5">
-              Custom planned evaluations sorted chronologically by date with
-              live urgency countdowns.
+            <p class="text-xs text-[#737373] mt-1">
+              Planned evaluations sorted chronologically with live urgency
+              countdowns.
             </p>
           </div>
 
           <!-- Type Category Filters -->
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center gap-1.5">
             <button
               onclick="filterEvaluations('ALL')"
               id="eval-filter-ALL"
-              class="eval-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-slate-900 text-white border-slate-900 shadow-sm"
+              class="eval-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#0284c7] text-white border-[#0284c7]"
             >
-              All Types
+              All types
             </button>
             <button
               onclick="filterEvaluations('Class Test')"
               id="eval-filter-Test"
-              class="eval-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-rose-700 border-rose-200 hover:bg-rose-50"
+              class="eval-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#dc2626] mr-1.5"
               ></span
-              >Class Tests
+              >Class tests
             </button>
             <button
               onclick="filterEvaluations('Presentation')"
               id="eval-filter-Pres"
-              class="eval-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50"
+              class="eval-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#6366f1] mr-1.5"
               ></span
               >Presentations
             </button>
             <button
               onclick="filterEvaluations('Assignment Deadline')"
               id="eval-filter-Assign"
-              class="eval-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-cyan-700 border-cyan-200 hover:bg-cyan-50"
+              class="eval-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-cyan-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#0284c7] mr-1.5"
               ></span
-              >Assignment Deadlines
+              >Assignment deadlines
             </button>
             <button
               onclick="filterEvaluations('Update')"
               id="eval-filter-Upd"
-              class="eval-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-amber-700 border-amber-200 hover:bg-amber-50"
+              class="eval-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#d97706] mr-1.5"
               ></span
               >Updates
+            </button>
+            <button
+              onclick="filterEvaluations('Exam/Duty')"
+              id="eval-filter-ExamDuty"
+              class="eval-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
+            >
+              <span
+                class="inline-block w-2 h-2 rounded-full bg-[#8b5cf6] mr-1.5"
+              ></span
+              >Exam/Duty
             </button>
           </div>
         </div>
 
         <!-- Status & Urgency Filter Control Section -->
-        <div
-          class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3"
-        >
+        <div class="glass-card p-4 rounded-2xl space-y-3">
           <!-- Status Filter Pills -->
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center gap-1.5">
             <span
-              class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1"
+              class="text-xs font-medium text-[#737373] mr-2 flex items-center gap-1.5"
             >
-              <i data-lucide="filter" class="w-3.5 h-3.5"></i> Status:
+              <i data-lucide="filter" class="w-4 h-4 text-[#737373]"></i>
+              Status
             </span>
             <button
               onclick="setStatusFilter('ALL')"
               id="eval-status-ALL"
-              class="eval-status-btn px-3 py-1 rounded-xl text-xs font-bold border transition-all bg-brand-600 text-white border-brand-600 shadow-sm"
+              class="eval-status-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#0284c7] text-white border-[#0284c7]"
             >
-              All Statuses
+              All statuses
             </button>
             <button
               onclick="setStatusFilter('UPCOMING')"
               id="eval-status-UPCOMING"
-              class="eval-status-btn px-3 py-1 rounded-xl text-xs font-semibold border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+              class="eval-status-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               Upcoming
             </button>
             <button
               onclick="setStatusFilter('COMPLETED')"
               id="eval-status-COMPLETED"
-              class="eval-status-btn px-3 py-1 rounded-xl text-xs font-semibold border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+              class="eval-status-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               Completed / Expired
             </button>
@@ -662,40 +604,41 @@
 
           <!-- Urgency Filter Pills -->
           <div
-            class="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3"
+            class="flex flex-wrap items-center gap-1.5 border-t border-[#171717]/[0.08] pt-3"
           >
             <span
-              class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1"
+              class="text-xs font-medium text-[#737373] mr-2 flex items-center gap-1.5"
             >
-              <i data-lucide="clock" class="w-3.5 h-3.5"></i> Urgency:
+              <i data-lucide="clock" class="w-4 h-4 text-[#737373]"></i>
+              Urgency
             </span>
             <button
               onclick="setUrgencyFilter('ALL')"
               id="eval-urgency-ALL"
-              class="eval-urgency-btn px-3 py-1 rounded-xl text-xs font-bold border transition-all bg-brand-600 text-white border-brand-600 shadow-sm"
+              class="eval-urgency-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#0284c7] text-white border-[#0284c7]"
             >
-              All Urgency
+              All urgency
             </button>
             <button
               onclick="setUrgencyFilter('URGENT')"
               id="eval-urgency-URGENT"
-              class="eval-urgency-btn px-3 py-1 rounded-xl text-xs font-semibold border transition-all bg-white text-rose-700 border-rose-200 hover:bg-rose-50"
+              class="eval-urgency-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
-              Urgent (&lt; 7 Days)
+              Urgent (&lt; 7 days)
             </button>
             <button
               onclick="setUrgencyFilter('PREPARE')"
               id="eval-urgency-PREPARE"
-              class="eval-urgency-btn px-3 py-1 rounded-xl text-xs font-semibold border transition-all bg-white text-amber-700 border-amber-200 hover:bg-amber-50"
+              class="eval-urgency-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
-              Prepare (7-14 Days)
+              Prepare (7–14 days)
             </button>
             <button
               onclick="setUrgencyFilter('PLAN')"
               id="eval-urgency-PLAN"
-              class="eval-urgency-btn px-3 py-1 rounded-xl text-xs font-semibold border transition-all bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+              class="eval-urgency-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
-              Plan (&gt; 14 Days)
+              Plan (&gt; 14 days)
             </button>
           </div>
         </div>
@@ -703,86 +646,112 @@
         <!-- User Planned Evaluations Container -->
         <div class="space-y-3">
           <h3
-            class="text-sm font-extrabold text-slate-900 flex items-center justify-between pt-1"
+            class="text-sm font-medium text-[#171717] flex items-center justify-between pt-1"
           >
             <span class="flex items-center gap-2"
               ><i
                 data-lucide="clipboard-list"
-                class="w-4 h-4 text-brand-600"
+                class="w-4 h-4 text-[#737373]"
               ></i>
-              User Added Assessments & Lab Tasks</span
+              User added assessments &amp; lab tasks</span
             >
-            <span class="text-xs font-semibold text-slate-400"
-              >Sorted Chronologically</span
-            >
+            <span class="text-xs text-[#737373]">Sorted chronologically</span>
           </h3>
-          <div id="evaluations-list" class="space-y-3"></div>
+          <div id="evaluations-list" class="space-y-2"></div>
         </div>
 
         <!-- Collapsible Mid-Term Exam Block (Collapsed by Default) -->
-        <div
-          class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden"
-        >
-          <!-- make this button class lighter, not current dark orange, make it gradient or glassmorphic -->
+        <div class="glass-card rounded-2xl overflow-hidden">
           <button
             onclick="toggleSection('midterm-section')"
-            class="w-full px-6 py-4 cursor-pointer bg-gradient-to-r from-amber-700 to-amber-600 text-white flex items-center justify-between font-extrabold text-sm hover:opacity-95 transition-opacity shadow-sm"
+            class="w-full px-5 py-4 cursor-pointer bg-[#f4f4f5] border-b border-[#171717]/[0.08] text-[#171717] flex items-center justify-between font-medium text-sm hover:bg-[#e4e4e7] transition-colors duration-150"
           >
-            <div class="flex items-center gap-2.5">
-              <div class="p-1.5 rounded-lg bg-white/20 backdrop-blur-md">
-                <i data-lucide="file-text" class="w-4 h-4 text-amber-100"></i>
-              </div>
-              <span>Mid-Term Examination Schedule (Dec 5 – Dec 12, 2026)</span>
+            <div class="flex items-center gap-3">
+              <i data-lucide="file-text" class="w-4 h-4 text-[#d97706]"></i>
               <span
-                class="text-[10px] bg-white/20 text-white px-2.5 py-0.5 rounded-full border border-white/30 font-bold"
-                >7 Days</span
+                >Mid-Term Examination Schedule (Dec 5 – Dec 12, 2026)</span
+              >
+              <span class="font-mono tabular-nums text-xs text-[#737373]"
+                >7 days</span
               >
             </div>
             <i
               id="midterm-section-arrow"
               data-lucide="chevron-down"
-              class="w-5 h-5 transform transition-transform"
+              class="w-4 h-4 transform transition-transform text-[#737373]"
             ></i>
           </button>
           <div
             id="midterm-section"
-            class="p-5 space-y-2.5 bg-amber-50/40 border-t border-amber-200/80 hidden"
+            class="p-5 space-y-3 bg-[#fafafa] hidden"
           >
+            <!-- Upload schedule placeholder -->
+            <div class="flex items-center justify-between gap-3 pb-2 border-b border-[#171717]/[0.08]">
+              <span class="text-xs text-[#737373] flex items-center gap-1.5">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                Upload your mid-term schedule
+              </span>
+              <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#525252] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150">
+                <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+                <span>Choose file</span>
+                <input type="file" accept="image/*,.pdf" class="hidden" onchange="handleScheduleUpload(this, 'midterm')" />
+              </label>
+            </div>
+            <div id="midterm-upload-preview" class="hidden text-xs text-[#525252] flex items-center gap-2 pb-2 border-b border-[#171717]/[0.08]">
+              <i data-lucide="file" class="w-3.5 h-3.5 text-[#0284c7] shrink-0"></i>
+              <span id="midterm-upload-name" class="truncate"></span>
+              <button onclick="clearScheduleUpload('midterm')" class="text-[#dc2626] hover:text-[#b91c1c] ml-auto shrink-0">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
             <div id="midterm-exam-list" class="space-y-2"></div>
           </div>
         </div>
 
         <!-- Collapsible Final Exam Block (Collapsed by Default) -->
-        <div
-          class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden"
-        >
-          <!-- make this button class lighter, not current dark orange, make it gradient or glassmorphic -->
+        <div class="glass-card rounded-2xl overflow-hidden">
           <button
             onclick="toggleSection('final-section')"
-            class="w-full px-6 py-4 bg-gradient-to-r from-green-700 to-green-600 text-white flex items-center justify-between font-extrabold text-sm hover:opacity-95 transition-opacity shadow-sm cursor-pointer"
+            class="w-full px-5 py-4 bg-[#f4f4f5] border-b border-[#171717]/[0.08] text-[#171717] flex items-center justify-between font-medium text-sm hover:bg-[#e4e4e7] transition-colors duration-150 cursor-pointer"
           >
-            <div class="flex items-center gap-2.5">
-              <div class="p-1.5 rounded-lg bg-white/20 backdrop-blur-md">
-                <i data-lucide="award" class="w-4 h-4 text-rose-100"></i>
-              </div>
+            <div class="flex items-center gap-3">
+              <i data-lucide="award" class="w-4 h-4 text-[#16a34a]"></i>
               <span
                 >Final Examination Window Schedule (Jan 25 – Feb 1, 2027)</span
               >
-              <span
-                class="text-[10px] bg-white/20 text-white px-2.5 py-0.5 rounded-full border border-white/30 font-bold"
-                >7 Days</span
+              <span class="font-mono tabular-nums text-xs text-[#737373]"
+                >7 days</span
               >
             </div>
             <i
               id="final-section-arrow"
               data-lucide="chevron-down"
-              class="w-5 h-5 transform transition-transform"
+              class="w-4 h-4 transform transition-transform text-[#737373]"
             ></i>
           </button>
           <div
             id="final-section"
-            class="p-5 space-y-2.5 bg-rose-50/30 border-t border-rose-200/80 hidden"
+            class="p-5 space-y-3 bg-[#fafafa] hidden"
           >
+            <!-- Upload schedule placeholder -->
+            <div class="flex items-center justify-between gap-3 pb-2 border-b border-[#171717]/[0.08]">
+              <span class="text-xs text-[#737373] flex items-center gap-1.5">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                Upload your final exam schedule
+              </span>
+              <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#525252] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150">
+                <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+                <span>Choose file</span>
+                <input type="file" accept="image/*,.pdf" class="hidden" onchange="handleScheduleUpload(this, 'final')" />
+              </label>
+            </div>
+            <div id="final-upload-preview" class="hidden text-xs text-[#525252] flex items-center gap-2 pb-2 border-b border-[#171717]/[0.08]">
+              <i data-lucide="file" class="w-3.5 h-3.5 text-[#0284c7] shrink-0"></i>
+              <span id="final-upload-name" class="truncate"></span>
+              <button onclick="clearScheduleUpload('final')" class="text-[#dc2626] hover:text-[#b91c1c] ml-auto shrink-0">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
             <div id="final-exam-list" class="space-y-2"></div>
           </div>
         </div>
@@ -791,70 +760,64 @@
       <!-- PAGE 4: IMPORTANT EVENTS VIEW -->
       <section id="page-events" class="space-y-6 hidden">
         <div
-          class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
+          id="events-filter-bar"
+          class="glass-card sticky top-[152px] sm:top-[112px] md:top-[68px] z-30 p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4"
         >
           <div>
             <h2
-              class="text-base font-extrabold text-slate-900 flex items-center gap-2"
+              class="text-sm font-medium text-[#171717] flex items-center gap-2"
             >
-              <div
-                class="p-2 rounded-xl bg-gradient-to-tr from-brand-600 to-purple-600 text-white shadow-sm"
-              >
-                <i data-lucide="calendar-days" class="w-5 h-5"></i>
-              </div>
-              <span>Academic Calendar Important Events</span>
+              <i data-lucide="calendar-days" class="w-4 h-4 text-[#737373]"></i>
+              <span>Academic calendar important events</span>
             </h2>
-            <!-- <p class="text-xs font-medium text-slate-500 mt-0.5">
-              Key deadlines, exam schedules, fee installment dates, and holidays
-            </p> -->
           </div>
 
           <!-- Category Pill Filter Bar -->
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center gap-1.5">
             <button
               onclick="filterEvents('ALL')"
               id="evt-filter-ALL"
-              class="evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-slate-900 text-white border-slate-900 shadow-sm"
+              class="evt-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#0284c7] text-white border-[#0284c7]"
             >
-              All Events
+              All events
             </button>
             <button
               onclick="filterEvents('ACADEMIC')"
               id="evt-filter-ACADEMIC"
-              class="evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50"
+              class="evt-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#0284c7] mr-1.5"
               ></span
               >Academic
             </button>
             <button
               onclick="filterEvents('EXAM')"
               id="evt-filter-EXAM"
-              class="evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-rose-700 border-rose-200 hover:bg-rose-50"
+              class="evt-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#dc2626] mr-1.5"
               ></span
               >Exam
             </button>
             <button
               onclick="filterEvents('PAYMENT')"
               id="evt-filter-PAYMENT"
-              class="evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+              class="evt-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#16a34a] mr-1.5"
               ></span
               >Payment
             </button>
             <button
               onclick="filterEvents('HOLIDAY')"
               id="evt-filter-HOLIDAY"
-              class="evt-f-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white text-amber-700 border-amber-200 hover:bg-amber-50"
+              class="evt-f-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-150 bg-[#f4f4f5] text-[#525252] border-[#171717]/[0.08] hover:text-[#171717] hover:bg-[#e4e4e7]"
             >
               <span
-                class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5"
+                class="inline-block w-2 h-2 rounded-full bg-[#d97706] mr-1.5"
               ></span
               >Holiday
             </button>
@@ -869,27 +832,23 @@
     <!-- MODAL 1: ADD ASSESSMENT MODAL -->
     <div
       id="eval-modal"
-      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
     >
       <div
-        class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto"
+        class="rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
       >
         <div
-          class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3.5"
+          class="flex items-center justify-between border-b border-[#171717]/[0.08] pb-3 mb-4"
         >
-          <h3
-            class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
-          >
-            <div class="p-1.5 bg-brand-100 text-brand-700 rounded-lg">
-              <i data-lucide="plus-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-            </div>
-            <span>Add Assessment</span>
+          <h3 class="text-sm font-medium text-[#171717] flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-[#0284c7]"></i>
+            <span>Add assessment</span>
           </h3>
           <button
             onclick="closeEvalModal()"
-            class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+            class="text-[#737373] hover:text-[#171717] p-1.5 rounded-lg hover:bg-[#f4f4f5] transition-colors duration-150"
           >
-            <i data-lucide="x" class="w-5 h-5"></i>
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
@@ -898,38 +857,38 @@
           <input type="hidden" id="eval-date-str" />
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Target Date</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Target date</label
             >
             <input
               type="text"
               id="eval-date-display"
               readonly
-              class="w-full text-xs font-bold bg-slate-100/80 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-700 outline-none"
+              class="w-full text-xs font-mono border rounded-lg px-3 py-2 outline-none"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Course Code *</label
+              <label class="block text-xs font-medium text-[#525252] mb-1.5"
+                >Course code *</label
               >
               <input
                 type="text"
                 id="eval-code"
                 required
-                placeholder="e.g. CSE 3811"
-                class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+                placeholder="CSE 3811"
+                class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
               />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Evaluation Type *</label
+              <label class="block text-xs font-medium text-[#525252] mb-1.5"
+                >Evaluation type *</label
               >
               <select
                 id="eval-type"
                 required
-                class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+                class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
               >
                 <option value="Class Test">Class Test</option>
                 <option value="Presentation">Presentation</option>
@@ -940,27 +899,27 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Course Title</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Course title</label
             >
             <input
               type="text"
               id="eval-course-title"
-              placeholder="e.g. Artificial Intelligence"
-              class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              placeholder="Artificial Intelligence"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Topic / Description *</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Topic / description *</label
             >
             <input
               type="text"
               id="eval-desc"
               required
-              placeholder="e.g. Agents"
-              class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              placeholder="Agents"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
             />
           </div>
 
@@ -968,15 +927,15 @@
             <button
               type="button"
               onclick="closeEvalModal()"
-              class="flex-1 px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+              class="flex-1 px-4 py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
             >
               Cancel
             </button>
             <button
               type="submit"
-              class="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 rounded-xl shadow-md"
+              class="flex-1 px-4 py-2 text-xs font-medium text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg transition-colors duration-150"
             >
-              Save Entry
+              Save entry
             </button>
           </div>
         </form>
@@ -986,27 +945,23 @@
     <!-- MODAL 1B: EDIT / REMOVE EXISTING ASSESSMENT MODAL -->
     <div
       id="eval-edit-modal"
-      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
     >
       <div
-        class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto"
+        class="rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
       >
         <div
-          class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3.5"
+          class="flex items-center justify-between border-b border-[#171717]/[0.08] pb-3 mb-4"
         >
-          <h3
-            class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
-          >
-            <div class="p-1.5 bg-brand-100 text-brand-700 rounded-lg">
-              <i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-            </div>
-            <span>Edit / Remove Assessment</span>
+          <h3 class="text-sm font-medium text-[#171717] flex items-center gap-2">
+            <i data-lucide="edit-3" class="w-4 h-4 text-[#0284c7]"></i>
+            <span>Edit / remove assessment</span>
           </h3>
           <button
             onclick="closeEditEvalModal()"
-            class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+            class="text-[#737373] hover:text-[#171717] p-1.5 rounded-lg hover:bg-[#f4f4f5] transition-colors duration-150"
           >
-            <i data-lucide="x" class="w-5 h-5"></i>
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
@@ -1018,37 +973,37 @@
           <input type="hidden" id="edit-eval-id" />
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Target Date</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Target date</label
             >
             <input
               type="text"
               id="edit-eval-date-display"
               readonly
-              class="w-full text-xs font-bold bg-slate-100/80 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-700 outline-none"
+              class="w-full text-xs font-mono border rounded-lg px-3 py-2 outline-none"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Course Code *</label
+              <label class="block text-xs font-medium text-[#525252] mb-1.5"
+                >Course code *</label
               >
               <input
                 type="text"
                 id="edit-eval-code"
                 required
-                class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+                class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
               />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Evaluation Type *</label
+              <label class="block text-xs font-medium text-[#525252] mb-1.5"
+                >Evaluation type *</label
               >
               <select
                 id="edit-eval-type"
                 required
-                class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+                class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
               >
                 <option value="Class Test">Class Test</option>
                 <option value="Presentation">Presentation</option>
@@ -1059,25 +1014,25 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Course Title</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Course title</label
             >
             <input
               type="text"
               id="edit-eval-course-title"
-              class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Topic / Description *</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Topic / description *</label
             >
             <input
               type="text"
               id="edit-eval-desc"
               required
-              class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
             />
           </div>
 
@@ -1085,22 +1040,22 @@
             <button
               type="button"
               onclick="confirmDeleteEvaluation()"
-              class="px-3 py-2.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200"
+              class="px-3 py-2 text-xs font-medium text-[#dc2626] bg-[#f4f4f5] hover:bg-[#e4e4e7] rounded-lg border border-[#dc2626]/25 transition-colors duration-150"
             >
               Remove
             </button>
             <button
               type="button"
               onclick="closeEditEvalModal()"
-              class="flex-1 px-3 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+              class="flex-1 px-3 py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
             >
               Cancel
             </button>
             <button
               type="submit"
-              class="flex-1 px-3 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md"
+              class="flex-1 px-3 py-2 text-xs font-medium text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg transition-colors duration-150"
             >
-              Save Changes
+              Save changes
             </button>
           </div>
         </form>
@@ -1110,34 +1065,32 @@
     <!-- MODAL 2: RESET CONFIRMATION -->
     <div
       id="reset-modal"
-      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-center justify-center p-4"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-center justify-center p-4"
     >
-      <div
-        class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100"
-      >
+      <div class="rounded-2xl max-w-sm w-full p-6">
         <div
-          class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3"
+          class="w-10 h-10 rounded-xl bg-[#f4f4f5] text-[#dc2626] border border-[#dc2626]/25 flex items-center justify-center mx-auto mb-3"
         >
-          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
         </div>
-        <h3 class="text-base font-extrabold text-center text-slate-900">
-          Reset All Progress?
+        <h3 class="text-sm font-medium text-center text-[#171717]">
+          Reset all progress?
         </h3>
-        <p class="text-xs text-center text-slate-500 mt-1.5 font-medium">
+        <p class="text-xs text-center text-[#737373] mt-1.5">
           This will clear custom assessment entries and meeting links.
         </p>
         <div class="mt-5 flex gap-3">
           <button
             onclick="closeResetModal()"
-            class="flex-1 px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+            class="flex-1 px-4 py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
           >
             Cancel
           </button>
           <button
             onclick="confirmReset()"
-            class="flex-1 px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm"
+            class="flex-1 px-4 py-2 text-xs font-medium text-white bg-[#dc2626] hover:bg-[#b91c1c] rounded-lg transition-colors duration-150"
           >
-            Reset All
+            Reset all
           </button>
         </div>
       </div>
@@ -1146,27 +1099,23 @@
     <!-- MODAL 3: MEETING LINK MODAL -->
     <div
       id="meeting-modal"
-      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
     >
       <div
-        class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto"
+        class="rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
       >
         <div
-          class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3.5"
+          class="flex items-center justify-between border-b border-[#171717]/[0.08] pb-3 mb-4"
         >
-          <h3
-            class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
-          >
-            <div class="p-1.5 bg-amber-100 text-amber-700 rounded-lg">
-              <i data-lucide="video" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-            </div>
-            <span>Makeup Meeting Link</span>
+          <h3 class="text-sm font-medium text-[#171717] flex items-center gap-2">
+            <i data-lucide="video" class="w-4 h-4 text-[#d97706]"></i>
+            <span>Makeup meeting link</span>
           </h3>
           <button
             onclick="closeMeetingModal()"
-            class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+            class="text-[#737373] hover:text-[#171717] p-1.5 rounded-lg hover:bg-[#f4f4f5] transition-colors duration-150"
           >
-            <i data-lucide="x" class="w-5 h-5"></i>
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
@@ -1177,18 +1126,18 @@
         >
           <input type="hidden" id="meeting-tile-id" />
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Class Date</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Class date</label
             >
             <input
               type="text"
               id="meeting-tile-display"
               readonly
-              class="w-full text-xs font-bold bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-700 outline-none"
+              class="w-full text-xs font-mono border rounded-lg px-3 py-2 outline-none"
             />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
               >Meeting URL *</label
             >
             <input
@@ -1196,18 +1145,18 @@
               id="meeting-url"
               required
               placeholder="https://meet.google.com/..."
-              class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
             />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Alias Text / Display Label</label
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Alias text / display label</label
             >
             <input
               type="text"
               id="meeting-alias"
-              placeholder="e.g. Join Google Meet"
-              class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              placeholder="Join Google Meet"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
             />
           </div>
           <div class="pt-2 flex gap-3">
@@ -1215,22 +1164,22 @@
               type="button"
               onclick="removeMeetingLink()"
               id="btn-remove-link"
-              class="px-4 py-2.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors hidden"
+              class="px-4 py-2 text-xs font-medium text-[#dc2626] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#dc2626]/25 rounded-lg transition-colors duration-150 hidden"
             >
-              Remove Link
+              Remove link
             </button>
             <button
               type="button"
               onclick="closeMeetingModal()"
-              class="flex-1 px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+              class="flex-1 px-4 py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
             >
               Cancel
             </button>
             <button
               type="submit"
-              class="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-md"
+              class="flex-1 px-4 py-2 text-xs font-medium text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg transition-colors duration-150"
             >
-              Save Link
+              Save link
             </button>
           </div>
         </form>
@@ -1240,50 +1189,42 @@
     <!-- MODAL 4: FIREBASE SYNC MODAL -->
     <div
       id="sync-modal"
-      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-center justify-center p-4"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-center justify-center p-4"
     >
-      <div
-        class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5"
-      >
+      <div class="rounded-2xl max-w-md w-full p-6 space-y-5">
         <div
-          class="flex items-center justify-between border-b border-slate-100 pb-3"
+          class="flex items-center justify-between border-b border-[#171717]/[0.08] pb-3"
         >
-          <div class="flex items-center gap-2.5">
-            <div class="p-2 bg-brand-100 text-brand-700 rounded-2xl">
-              <i data-lucide="cloud-lightning" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h3 class="text-base font-extrabold text-slate-900">
-                Cross-Device Cloud Sync
-              </h3>
-            </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="cloud-lightning" class="w-4 h-4 text-[#0284c7]"></i>
+            <h3 class="text-sm font-medium text-[#171717]">
+              Cross-device cloud sync
+            </h3>
           </div>
           <button
             onclick="closeSyncModal()"
-            class="text-slate-400 hover:text-slate-600 p-1 rounded-xl"
+            class="text-[#737373] hover:text-[#171717] p-1 rounded-lg hover:bg-[#f4f4f5] transition-colors duration-150"
           >
-            <i data-lucide="x" class="w-5 h-5"></i>
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
         <div
-          class="bg-gradient-to-br from-brand-50 to-indigo-50 p-4 rounded-2xl border border-brand-200 text-center space-y-2"
+          class="bg-[#f4f4f5] p-4 rounded-xl border border-[#171717]/[0.08] text-center space-y-2"
         >
-          <span
-            class="text-[11px] font-bold uppercase tracking-wider text-brand-700 block"
-          >
-            Your Unique Device Sync Code
+          <span class="text-xs text-[#737373] block">
+            Your unique device sync code
           </span>
           <div class="flex items-center justify-center gap-2">
             <span
               id="sync-code-display"
-              class="text-lg font-black tracking-widest text-brand-900 font-mono bg-white px-3.5 py-1.5 rounded-xl border border-brand-300"
+              class="text-base font-medium tracking-wider text-[#171717] font-mono bg-[#ffffff] px-3 py-1.5 rounded-lg border border-[#171717]/[0.08]"
             >
-              VERIFYING...
+              Verifying
             </span>
             <button
               onclick="copySyncCode()"
-              class="p-2 text-brand-700 bg-white hover:bg-brand-100 border border-brand-300 rounded-xl"
+              class="p-2 text-[#525252] hover:text-[#171717] bg-[#ffffff] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
             >
               <i data-lucide="copy" class="w-4 h-4"></i>
             </button>
@@ -1292,42 +1233,272 @@
 
         <form
           onsubmit="connectSyncCode(event)"
-          class="space-y-3 pt-2 border-t border-slate-100"
+          class="space-y-3 pt-2 border-t border-[#171717]/[0.08]"
         >
-          <label class="block text-xs font-extrabold text-slate-800">
-            Connect to Existing Session Code
+          <label class="block text-xs font-medium text-[#525252]">
+            Connect to existing session code
           </label>
           <div class="flex gap-2">
             <input
               type="text"
               id="input-sync-code"
               required
-              placeholder="e.g. FALL-2026-X9K2-M7P4"
-              class="flex-1 text-xs font-mono font-bold uppercase bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none"
+              placeholder="FALL-2026-X9K2-M7P4"
+              class="flex-1 text-xs font-mono uppercase border rounded-lg px-3 py-2 outline-none"
             />
             <button
               type="submit"
-              class="px-4 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl"
+              class="px-4 py-2 text-xs font-medium text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg transition-colors duration-150"
             >
               Connect
             </button>
           </div>
           <p
             id="sync-status-msg"
-            class="text-[11px] font-bold text-emerald-600 text-center hidden"
+            class="text-xs text-[#16a34a] text-center hidden"
           ></p>
         </form>
 
-        <div class="pt-2">
+        <div class="pt-1">
           <button
             onclick="closeSyncModal()"
-            class="w-full py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+            class="w-full py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
           >
             Close
           </button>
         </div>
       </div>
     </div>
+
+    <!-- MODAL 5: STUDENT EXAM MODAL -->
+    <div
+      id="student-exam-modal"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
+    >
+      <div
+        class="rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="flex items-center justify-between border-b border-[#171717]/[0.08] pb-3 mb-4"
+        >
+          <h3 class="text-sm font-medium text-[#171717] flex items-center gap-2">
+            <i data-lucide="graduation-cap" class="w-4 h-4 text-[#0284c7]"></i>
+            <span>Student exam entry</span>
+          </h3>
+          <button
+            onclick="closeStudentExamModal()"
+            class="text-[#737373] hover:text-[#171717] p-1.5 rounded-lg hover:bg-[#f4f4f5] transition-colors duration-150"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <form
+          id="student-exam-form"
+          onsubmit="saveStudentExam(event)"
+          class="space-y-4"
+        >
+          <input type="hidden" id="student-exam-day-id" />
+          <div>
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Exam day</label
+            >
+            <input
+              type="text"
+              id="student-exam-day-display"
+              readonly
+              class="w-full text-xs font-mono border rounded-lg px-3 py-2 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Course *</label
+            >
+            <input
+              type="text"
+              id="student-exam-course"
+              required
+              placeholder="e.g. CSE 3811 - Artificial Intelligence"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Time slot *</label
+            >
+            <select
+              id="student-exam-slot"
+              required
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
+            >
+              <option value="9:00 AM – 11:00 AM">9:00 AM – 11:00 AM</option>
+              <option value="11:45 AM – 1:45 PM">11:45 AM – 1:45 PM</option>
+              <option value="2:30 PM – 4:30 PM">2:30 PM – 4:30 PM</option>
+            </select>
+          </div>
+
+          <div class="pt-2 flex gap-3">
+            <button
+              type="button"
+              onclick="closeStudentExamModal()"
+              class="flex-1 px-4 py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-4 py-2 text-xs font-medium text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg transition-colors duration-150"
+            >
+              Add exam
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 6: FACULTY EXAM DUTY MODAL -->
+    <div
+      id="faculty-duty-modal"
+      class="fixed inset-0 z-50 bg-[#171717]/35 hidden flex items-end sm:items-center justify-center p-0 sm:p-4"
+    >
+      <div
+        class="rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="flex items-center justify-between border-b border-[#171717]/[0.08] pb-3 mb-4"
+        >
+          <h3 class="text-sm font-medium text-[#171717] flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-4 h-4 text-[#d97706]"></i>
+            <span>Faculty exam duty</span>
+          </h3>
+          <button
+            onclick="closeFacultyDutyModal()"
+            class="text-[#737373] hover:text-[#171717] p-1.5 rounded-lg hover:bg-[#f4f4f5] transition-colors duration-150"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <form
+          id="faculty-duty-form"
+          onsubmit="saveFacultyDuty(event)"
+          class="space-y-4"
+        >
+          <input type="hidden" id="faculty-duty-day-id" />
+          <div>
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Exam day</label
+            >
+            <input
+              type="text"
+              id="faculty-duty-day-display"
+              readonly
+              class="w-full text-xs font-mono border rounded-lg px-3 py-2 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#525252] mb-1.5"
+              >Number of duties on this day *</label
+            >
+            <input
+              type="number"
+              id="faculty-duty-count"
+              min="1"
+              max="3"
+              value="1"
+              required
+              oninput="syncFacultyDutySlotCheckboxes()"
+              onchange="syncFacultyDutySlotCheckboxes()"
+              class="w-full text-xs border rounded-lg px-3 py-2 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#525252] mb-2"
+              >Duty time slot(s) *
+              <span id="faculty-duty-slot-hint" class="text-[11px] text-[#737373] font-normal ml-1"></span>
+            </label>
+            <div class="space-y-2 text-xs text-[#171717]">
+              <label
+                class="flex items-center gap-2.5 p-2.5 rounded-lg bg-[#f4f4f5] border border-[#171717]/[0.08] cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="faculty-duty-slot"
+                  value="9:00 AM – 11:00 AM"
+                  onchange="syncFacultyDutySlotCheckboxes()"
+                  class="accent-[#0284c7]"
+                />
+                <span class="font-mono">9:00 AM – 11:00 AM</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 p-2.5 rounded-lg bg-[#f4f4f5] border border-[#171717]/[0.08] cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="faculty-duty-slot"
+                  value="11:45 AM – 1:45 PM"
+                  onchange="syncFacultyDutySlotCheckboxes()"
+                  class="accent-[#0284c7]"
+                />
+                <span class="font-mono">11:45 AM – 1:45 PM</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 p-2.5 rounded-lg bg-[#f4f4f5] border border-[#171717]/[0.08] cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="faculty-duty-slot"
+                  value="2:30 PM – 4:30 PM"
+                  onchange="syncFacultyDutySlotCheckboxes()"
+                  class="accent-[#0284c7]"
+                />
+                <span class="font-mono">2:30 PM – 4:30 PM</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-2 flex gap-2">
+            <button
+              type="button"
+              id="btn-clear-faculty-duty"
+              onclick="clearFacultyDuty()"
+              class="px-3 py-2 text-xs font-medium text-[#dc2626] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#dc2626]/25 rounded-lg transition-colors duration-150 hidden"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onclick="closeFacultyDutyModal()"
+              class="flex-1 px-4 py-2 text-xs font-medium text-[#171717] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-4 py-2 text-xs font-medium text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg transition-colors duration-150"
+            >
+              Save duty
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button
+      id="back-to-top-btn"
+      type="button"
+      onclick="scrollToTop()"
+      aria-label="Back to top"
+      class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#171717] text-[#ffffff] hover:bg-[#2a2a2d] border border-[#171717] shadow-[0_6px_16px_rgba(0,0,0,0.18)] text-xs font-medium opacity-0 pointer-events-none translate-y-2 transition-[opacity,transform,background-color] duration-150"
+    >
+      <i data-lucide="arrow-up" class="w-4 h-4 text-[#38bdf8]"></i>
+      <span>Back to top</span>
+    </button>
 
     <!-- Application JavaScript -->
     <script src="script.js"></script>
