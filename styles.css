@@ -444,6 +444,22 @@ body.dark-glass #calendar-container #ongoing-calendar-tile {
   animation: none !important;
 }
 
+/* 6. Exam window tile integrated in calendar (distinct rose accent) */
+body.dark-glass #calendar-container div[id^="month-sec-"] > div.exam-calendar-tile {
+  background-color: #fff1f2 !important;
+  background-image: none !important;
+  border: 1px solid rgba(225, 29, 72, 0.35) !important;
+  border-left: 3px solid #e11d48 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+body.dark-glass #calendar-container div[id^="month-sec-"] > div.exam-calendar-tile:hover {
+  background-color: #ffe4e6 !important;
+  border-color: rgba(225, 29, 72, 0.55) !important;
+  border-left-color: #e11d48 !important;
+}
+
 body.dark-glass #calendar-container #ongoing-calendar-tile:hover {
   background-color: #ede9fe !important;
   border-color: rgba(124, 58, 237, 0.6) !important;

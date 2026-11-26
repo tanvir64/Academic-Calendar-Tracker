@@ -12,6 +12,8 @@
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- PDF.js CDN for client-side exam schedule PDF parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <script>
       tailwind.config = {
@@ -263,8 +265,24 @@
           </div>
         </div>
 
-        <!-- Dynamic Banner: Exam Planning Prompt or Auto-sync info -->
-        <div id="calendar-banner" class="rounded-xl text-xs"></div>
+        <!-- Automatic Completion Sync Banner -->
+        <div
+          class="bg-[#ffffff] border border-[#171717]/[0.08] rounded-xl px-4 py-3 text-xs text-[#525252] flex items-center justify-between gap-3"
+        >
+          <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-[#16a34a] shrink-0"></span>
+            <span class="leading-relaxed">
+              <strong class="text-[#171717] font-medium"
+                >Automatic past completion sync:</strong
+              >
+              Dates that have passed (after 4:30 PM BDT) are marked completed
+              automatically.
+            </span>
+          </div>
+          <span class="font-mono text-[11px] text-[#737373] shrink-0">
+            Auto-synced
+          </span>
+        </div>
 
         <!-- Calendar Months Container -->
         <div id="calendar-container" class="space-y-6"></div>
@@ -706,21 +724,22 @@
             id="midterm-section"
             class="p-5 space-y-3 bg-[#fafafa] hidden"
           >
-            <!-- Upload schedule placeholder -->
+            <!-- Upload schedule -->
             <div class="flex items-center justify-between gap-3 pb-2 border-b border-[#171717]/[0.08]">
               <span class="text-xs text-[#737373] flex items-center gap-1.5">
                 <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                Upload your mid-term schedule
+                Upload your mid-term invigilation PDF
               </span>
               <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#525252] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150">
                 <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
-                <span>Choose file</span>
-                <input type="file" accept="image/*,.pdf" class="hidden" onchange="handleScheduleUpload(this, 'midterm')" />
+                <span>Choose PDF</span>
+                <input type="file" accept=".pdf,application/pdf" class="hidden" onchange="handleScheduleUpload(this, 'midterm')" />
               </label>
             </div>
             <div id="midterm-upload-preview" class="hidden text-xs text-[#525252] flex items-center gap-2 pb-2 border-b border-[#171717]/[0.08]">
               <i data-lucide="file" class="w-3.5 h-3.5 text-[#0284c7] shrink-0"></i>
-              <span id="midterm-upload-name" class="truncate"></span>
+              <span id="midterm-upload-name" class="truncate font-medium text-[#171717]"></span>
+              <span id="midterm-upload-status" class="text-[11px] text-[#737373] truncate"></span>
               <button onclick="clearScheduleUpload('midterm')" class="text-[#dc2626] hover:text-[#b91c1c] ml-auto shrink-0">
                 <i data-lucide="x" class="w-3.5 h-3.5"></i>
               </button>
@@ -754,21 +773,22 @@
             id="final-section"
             class="p-5 space-y-3 bg-[#fafafa] hidden"
           >
-            <!-- Upload schedule placeholder -->
+            <!-- Upload schedule -->
             <div class="flex items-center justify-between gap-3 pb-2 border-b border-[#171717]/[0.08]">
               <span class="text-xs text-[#737373] flex items-center gap-1.5">
                 <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                Upload your final exam schedule
+                Upload your final invigilation PDF
               </span>
               <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#525252] bg-[#f4f4f5] hover:bg-[#e4e4e7] border border-[#171717]/[0.08] rounded-lg transition-colors duration-150">
                 <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
-                <span>Choose file</span>
-                <input type="file" accept="image/*,.pdf" class="hidden" onchange="handleScheduleUpload(this, 'final')" />
+                <span>Choose PDF</span>
+                <input type="file" accept=".pdf,application/pdf" class="hidden" onchange="handleScheduleUpload(this, 'final')" />
               </label>
             </div>
             <div id="final-upload-preview" class="hidden text-xs text-[#525252] flex items-center gap-2 pb-2 border-b border-[#171717]/[0.08]">
               <i data-lucide="file" class="w-3.5 h-3.5 text-[#0284c7] shrink-0"></i>
-              <span id="final-upload-name" class="truncate"></span>
+              <span id="final-upload-name" class="truncate font-medium text-[#171717]"></span>
+              <span id="final-upload-status" class="text-[11px] text-[#737373] truncate"></span>
               <button onclick="clearScheduleUpload('final')" class="text-[#dc2626] hover:text-[#b91c1c] ml-auto shrink-0">
                 <i data-lucide="x" class="w-3.5 h-3.5"></i>
               </button>
