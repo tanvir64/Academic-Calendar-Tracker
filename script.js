@@ -1200,7 +1200,34 @@ function renderCalendar() {
     container.appendChild(monthSection);
     const grid = document.getElementById(`month-sec-${m}`);
 
+    const examPeriodsByMonth = {
+      DEC: {
+        id: "midterm-calendar-tile",
+        dateLabel: "DEC 5 – 12",
+        title: "Mid-Term Exam",
+        subtitle: "7 exam days · Dec 2026",
+        startDateStr: "2026-12-05",
+        endDateStr: "2026-12-12",
+        sectionId: "midterm-section",
+      },
+      JAN: {
+        id: "final-calendar-tile",
+        dateLabel: "JAN 25 – FEB 1",
+        title: "Final Exam",
+        subtitle: "7 exam days · Jan–Feb 2027",
+        startDateStr: "2027-01-25",
+        endDateStr: "2027-02-01",
+        sectionId: "final-section",
+      },
+    };
+    const monthExam = currentFilter !== "MAKEUP" ? examPeriodsByMonth[m] : null;
+    let monthExamInserted = false;
+
     filteredClasses.forEach((item) => {
+      if (monthExam && !monthExamInserted && item.dateStr > monthExam.startDateStr) {
+        grid.appendChild(createExamCalendarTile(monthExam));
+        monthExamInserted = true;
+      }
       const isDone = completedClasses.has(item.id);
       const isPast = isDatePassed(item.dateStr);
       const isOngoing = !isDone && !isPast && isTodayDate(item.dateStr);
@@ -1345,6 +1372,10 @@ function renderCalendar() {
       `;
       grid.appendChild(card);
     });
+
+    if (monthExam && !monthExamInserted) {
+      grid.appendChild(createExamCalendarTile(monthExam));
+    }
   });
 
   const qComp = document.getElementById("quick-completed-count");
@@ -1352,8 +1383,57 @@ function renderCalendar() {
   if (qComp) qComp.innerText = activeFilterCompleted;
   if (qRem) qRem.innerText = activeFilterTotal - activeFilterCompleted;
 
-  renderExamPlanningBanner();
   lucide.createIcons();
+}
+
+function createExamCalendarTile(exam) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = new Date(exam.startDateStr);
+  startDate.setHours(0, 0, 0, 0);
+  const daysUntil = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+  const isExamDone = isDatePassed(exam.endDateStr);
+  const isExamOngoing = !isExamDone && daysUntil <= 0;
+
+  const statusText = isExamDone
+    ? "Completed"
+    : isExamOngoing
+      ? "Ongoing"
+      : daysUntil === 1
+        ? "Tomorrow"
+        : `In ${daysUntil}d`;
+
+  const card = document.createElement("div");
+  card.id = exam.id;
+  card.className =
+    "exam-calendar-tile relative flex flex-col justify-between p-3 sm:p-3.5 rounded-xl border transition-colors select-none min-w-0";
+
+  card.innerHTML = `
+    <div>
+      <div class="flex items-center justify-between gap-1.5 mb-2 flex-wrap">
+        <span class="text-xs font-semibold text-[#9f1239]">${exam.dateLabel}</span>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#ffe4e6] text-[#be123c] border border-[#e11d48]/20 shrink-0">EXAM</span>
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-xs font-semibold text-[#171717] block">${exam.title}</span>
+        <span class="text-[10px] text-[#737373] block">${exam.subtitle}</span>
+      </div>
+    </div>
+
+    <div class="mt-3 pt-2 border-t border-[#e11d48]/15 flex items-center justify-between gap-2 flex-wrap">
+      <button
+        type="button"
+        onclick="navigateToExamSection('${exam.sectionId}')"
+        class="text-[10px] font-semibold text-white bg-[#e11d48] hover:bg-[#be123c] px-3 py-1 rounded transition-colors flex items-center gap-1 cursor-pointer"
+      >
+        <i data-lucide="calendar-check" class="w-3 h-3"></i>
+        <span>Plan</span>
+      </button>
+      <span class="text-[10px] font-semibold ${isExamDone ? "text-[#16a34a]" : "text-[#be123c]"} tabular-nums">${statusText}</span>
+    </div>
+  `;
+  return card;
 }
 
 function scrollToCurrentDay() {
@@ -1999,76 +2079,6 @@ function shouldExpandExamSchedule(daysList) {
   return daysUntilStart <= 10 && !isDatePassed(lastDayStr);
 }
 
-// Render the dynamic banner in the Calendar tab:
-// If an exam is ≤10 days away, show a clickable planning prompt; otherwise show auto-sync info.
-function renderExamPlanningBanner() {
-  const banner = document.getElementById("calendar-banner");
-  if (!banner) return;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  function getExamInfo(daysList, label, sectionId) {
-    if (!daysList || daysList.length === 0) return null;
-    const startDate = new Date(daysList[0].dateStr);
-    startDate.setHours(0, 0, 0, 0);
-    const lastDayStr = daysList[daysList.length - 1].dateStr;
-    if (isDatePassed(lastDayStr)) return null; // exam already over
-    const daysUntil = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
-    if (daysUntil > 10) return null;
-    return { label, sectionId, daysUntil };
-  }
-
-  const midInfo = getExamInfo(MIDTERM_DAYS, "Mid-Term Examinations", "midterm-section");
-  const finInfo = getExamInfo(FINAL_DAYS, "Final Examinations", "final-section");
-
-  // Pick the nearer exam, or both if both qualify
-  const exams = [midInfo, finInfo].filter(Boolean);
-  exams.sort((a, b) => a.daysUntil - b.daysUntil);
-
-  if (exams.length === 0) {
-    // Show default auto-sync banner
-    banner.innerHTML = `
-      <div class="bg-[#ffffff] border border-[#171717]/[0.08] rounded-xl px-4 py-3 text-xs text-[#525252] flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <span class="w-2 h-2 rounded-full bg-[#16a34a] shrink-0"></span>
-          <span class="leading-relaxed">
-            <strong class="text-[#171717] font-medium">Automatic past completion sync:</strong>
-            Dates that have passed (after 4:30 PM BDT) are marked completed automatically.
-          </span>
-        </div>
-        <span class="font-mono text-[11px] text-[#737373] shrink-0">Auto-synced</span>
-      </div>`;
-  } else {
-    let html = "";
-    exams.forEach((exam) => {
-      const daysText = exam.daysUntil <= 0
-        ? "happening now"
-        : exam.daysUntil === 1
-          ? "starts tomorrow"
-          : `starts in ${exam.daysUntil} days`;
-
-      html += `
-        <button onclick="navigateToExamSection('${exam.sectionId}')"
-          class="w-full bg-[#ffffff] border border-[#d97706]/30 rounded-xl px-4 py-3.5 text-xs text-[#525252] flex items-center justify-between gap-3 hover:bg-[#fffbeb] hover:border-[#d97706]/50 transition-colors duration-150 cursor-pointer group">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-[#d97706] shrink-0"></span>
-            <span class="leading-relaxed">
-              <strong class="text-[#171717] font-medium">${exam.label}</strong>
-              <span class="text-[#d97706] font-medium ml-1">${daysText}</span>
-              <span class="text-[#737373] mx-1">—</span>
-              <span class="text-[#0284c7] font-medium group-hover:underline">Plan your exam schedule →</span>
-            </span>
-          </div>
-          <span class="font-mono text-[11px] text-[#d97706] tabular-nums shrink-0 bg-[#fef3c7] px-2 py-0.5 rounded-md border border-[#d97706]/20">${exam.daysUntil <= 0 ? "Now" : exam.daysUntil + "d"}</span>
-        </button>`;
-    });
-    banner.innerHTML = `<div class="space-y-2">${html}</div>`;
-  }
-
-  lucide.createIcons();
-}
-
 function navigateToExamSection(sectionId) {
   // Switch to Assessments tab
   switchPage("assessments");
@@ -2093,23 +2103,280 @@ function navigateToExamSection(sectionId) {
   }, 150);
 }
 
-// Placeholder upload handlers (no processing logic — UI-only stubs)
-function handleScheduleUpload(input, examType) {
+// Configure PDF.js worker if loaded
+if (typeof pdfjsLib !== "undefined" && pdfjsLib.GlobalWorkerOptions) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+function parsePdfExamDate(rawDate) {
+  const m = rawDate
+    .replace(/\s+/g, " ")
+    .match(
+      /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2}),?\s*(\d{4})\b/i,
+    );
+  if (!m) return null;
+  const monthMap = {
+    jan: "01",
+    feb: "02",
+    mar: "03",
+    apr: "04",
+    may: "05",
+    jun: "06",
+    jul: "07",
+    aug: "08",
+    sep: "09",
+    oct: "10",
+    nov: "11",
+    dec: "12",
+  };
+  const mm = monthMap[m[1].toLowerCase().slice(0, 3)];
+  const dd = String(parseInt(m[2], 10)).padStart(2, "0");
+  return `${m[3]}-${mm}-${dd}`;
+}
+
+function normalizeExamTimeSlot(rawTime) {
+  const cleaned = rawTime.replace(/\s+/g, " ").trim();
+  if (/0?9:00\s*AM/i.test(cleaned)) return "9:00 AM – 11:00 AM";
+  if (/11:45\s*AM/i.test(cleaned)) return "11:45 AM – 1:45 PM";
+  if (/0?2:30\s*PM/i.test(cleaned)) return "2:30 PM – 4:30 PM";
+  return cleaned;
+}
+
+function groupPdfItemsIntoLines(items) {
+  const sorted = items
+    .map((it) => ({
+      str: (it.str || "").trim(),
+      x: it.transform[4],
+      y: it.transform[5],
+    }))
+    .filter((it) => it.str.length > 0)
+    .sort((a, b) => b.y - a.y || a.x - b.x);
+
+  const lines = [];
+  sorted.forEach((it) => {
+    const lastLine = lines[lines.length - 1];
+    if (lastLine && Math.abs(lastLine.y - it.y) <= 4.5) {
+      lastLine.items.push(it);
+    } else {
+      lines.push({ y: it.y, items: [it] });
+    }
+  });
+  lines.forEach((line) => line.items.sort((a, b) => a.x - b.x));
+  return lines;
+}
+
+function detectInvigilationColumns(lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const text = lines[i].items.map((it) => it.str).join(" ");
+    if (/Course\s*Code/i.test(text) && /Exam\s*Time|Time/i.test(text)) {
+      // Combine header items from adjacent wrapped header lines within ±18px
+      const headerY = lines[i].y;
+      const headerItems = lines
+        .filter((l) => Math.abs(l.y - headerY) <= 18)
+        .flatMap((l) => l.items);
+
+      const findColX = (pattern) => {
+        const match = headerItems.find((it) => pattern.test(it.str));
+        return match ? match.x : null;
+      };
+
+      const cols = [
+        { key: "date", x: findColX(/^(Exam|Date)$/i) ?? findColX(/Exam\s*Date/i) ?? 0 },
+        { key: "time", x: findColX(/Exam\s*Time|^Time$/i) },
+        { key: "code", x: findColX(/Course\s*Code|^Code$/i) },
+        { key: "title", x: findColX(/Course\s*Title|^Title$/i) },
+        { key: "section", x: findColX(/^Section$/i) },
+        { key: "teacher", x: findColX(/^Teacher$/i) },
+        { key: "room", x: findColX(/^Room/i) },
+        { key: "std", x: findColX(/^Std|Count/i) },
+        { key: "dept", x: findColX(/^Dept/i) },
+      ].filter((c) => c.x !== null);
+
+      cols.sort((a, b) => a.x - b.x);
+      const minHeaderY = Math.min(
+        ...lines
+          .filter((l) => Math.abs(l.y - headerY) <= 18)
+          .map((l) => l.y),
+      );
+      return { cols, startAfterY: minHeaderY - 4 };
+    }
+  }
+  return null;
+}
+
+function assignItemToColumn(x, cols) {
+  let matched = cols[0].key;
+  for (let i = 0; i < cols.length; i++) {
+    if (x >= cols[i].x - 8) {
+      matched = cols[i].key;
+    }
+  }
+  return matched;
+}
+
+async function parseInvigilationPdf(file) {
+  if (typeof pdfjsLib === "undefined") {
+    throw new Error("PDF.js library failed to load.");
+  }
+
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  const parsedRows = [];
+
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const textContent = await page.getTextContent();
+    const lines = groupPdfItemsIntoLines(textContent.items);
+    const headerInfo = detectInvigilationColumns(lines);
+    if (!headerInfo) continue;
+
+    const { cols, startAfterY } = headerInfo;
+    let currentRow = null;
+
+    lines.forEach((line) => {
+      if (line.y >= startAfterY) return;
+
+      const lineBuckets = {};
+      line.items.forEach((it) => {
+        const colKey = assignItemToColumn(it.x, cols);
+        lineBuckets[colKey] = lineBuckets[colKey]
+          ? `${lineBuckets[colKey]} ${it.str}`
+          : it.str;
+      });
+
+      const dateCell = (lineBuckets.date || "").trim();
+      const startsNewRow = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}/i.test(
+        dateCell,
+      );
+
+      if (startsNewRow) {
+        if (currentRow) parsedRows.push(currentRow);
+        currentRow = {
+          date: dateCell,
+          time: lineBuckets.time || "",
+          code: lineBuckets.code || "",
+          room: lineBuckets.room || "",
+          dept: lineBuckets.dept || "",
+        };
+      } else if (currentRow) {
+        if (lineBuckets.date) currentRow.date += " " + lineBuckets.date;
+        if (lineBuckets.time) currentRow.time += " " + lineBuckets.time;
+        if (lineBuckets.code) currentRow.code += " " + lineBuckets.code;
+        if (lineBuckets.room) currentRow.room += " " + lineBuckets.room;
+        if (lineBuckets.dept) currentRow.dept += " " + lineBuckets.dept;
+      }
+    });
+
+    if (currentRow) parsedRows.push(currentRow);
+  }
+
+  return parsedRows
+    .map((r) => ({
+      dateStr: parsePdfExamDate(r.date),
+      slot: normalizeExamTimeSlot(r.time),
+      courseCode: r.code.replace(/\s+/g, " ").trim(),
+      room: r.room.replace(/\s+/g, " ").trim(),
+      dept: r.dept.replace(/\s+/g, " ").trim(),
+    }))
+    .filter((r) => r.dateStr && r.slot);
+}
+
+async function handleScheduleUpload(input, examType) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
   const preview = document.getElementById(examType + "-upload-preview");
   const nameEl = document.getElementById(examType + "-upload-name");
+  const statusEl = document.getElementById(examType + "-upload-status");
+
   if (preview && nameEl) {
     nameEl.textContent = file.name;
     preview.classList.remove("hidden");
   }
+  if (statusEl) {
+    statusEl.textContent = "• Parsing PDF...";
+    statusEl.className = "text-[11px] text-[#0284c7] truncate";
+  }
   lucide.createIcons();
+
+  try {
+    const duties = await parseInvigilationPdf(file);
+    const targetDays = examType === "midterm" ? MIDTERM_DAYS : FINAL_DAYS;
+    const slotOrder = [
+      "9:00 AM – 11:00 AM",
+      "11:45 AM – 1:45 PM",
+      "2:30 PM – 4:30 PM",
+    ];
+
+    const groupedByDayId = {};
+    duties.forEach((duty) => {
+      const matchedDay = targetDays.find((d) => d.dateStr === duty.dateStr);
+      if (!matchedDay) return;
+      if (!groupedByDayId[matchedDay.id]) groupedByDayId[matchedDay.id] = [];
+      groupedByDayId[matchedDay.id].push(duty);
+    });
+
+    const matchedDayIds = Object.keys(groupedByDayId);
+    if (matchedDayIds.length === 0) {
+      if (statusEl) {
+        statusEl.textContent = `• No ${examType === "midterm" ? "Mid-Term" : "Final"} dates matched`;
+        statusEl.className = "text-[11px] text-[#dc2626] truncate";
+      }
+      return;
+    }
+
+    // Clear previous duties for this exam window before applying the newly uploaded schedule
+    targetDays.forEach((d) => {
+      if (facultyExamDuties[d.id]) delete facultyExamDuties[d.id];
+    });
+
+    let totalDutiesImported = 0;
+    matchedDayIds.forEach((dayId) => {
+      const dayDuties = groupedByDayId[dayId];
+      totalDutiesImported += dayDuties.length;
+
+      const uniqueSlots = Array.from(new Set(dayDuties.map((d) => d.slot))).sort(
+        (a, b) => {
+          const ia = slotOrder.indexOf(a);
+          const ib = slotOrder.indexOf(b);
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        },
+      );
+
+      facultyExamDuties[dayId] = {
+        count: dayDuties.length,
+        slots: uniqueSlots,
+        fromPdf: true,
+        details: dayDuties.map((d) => ({
+          courseCode: d.courseCode,
+          dept: d.dept,
+          room: d.room,
+          slot: d.slot,
+        })),
+      };
+    });
+
+    saveState();
+    renderEvaluations();
+
+    if (statusEl) {
+      statusEl.textContent = `• Imported ${totalDutiesImported} ${totalDutiesImported === 1 ? "duty" : "duties"} across ${matchedDayIds.length} ${matchedDayIds.length === 1 ? "day" : "days"}`;
+      statusEl.className = "text-[11px] text-[#16a34a] font-medium truncate";
+    }
+  } catch (err) {
+    console.error("Failed parsing schedule PDF:", err);
+    if (statusEl) {
+      statusEl.textContent = "• Could not parse PDF";
+      statusEl.className = "text-[11px] text-[#dc2626] truncate";
+    }
+  }
 }
 
 function clearScheduleUpload(examType) {
   const preview = document.getElementById(examType + "-upload-preview");
+  const statusEl = document.getElementById(examType + "-upload-status");
   if (preview) preview.classList.add("hidden");
-  // Reset the file input
+  if (statusEl) statusEl.textContent = "";
   const section = examType === "midterm" ? "midterm-section" : "final-section";
   const sec = document.getElementById(section);
   if (sec) {
@@ -2274,9 +2541,19 @@ function saveFacultyDuty(event) {
     return;
   }
 
+  const existingDetails =
+    facultyExamDuties[dayId] && Array.isArray(facultyExamDuties[dayId].details)
+      ? facultyExamDuties[dayId].details.filter((det) =>
+          selectedSlots.includes(det.slot),
+        )
+      : null;
+
   facultyExamDuties[dayId] = {
     count,
     slots: selectedSlots,
+    ...(existingDetails && existingDetails.length > 0
+      ? { details: existingDetails }
+      : {}),
   };
 
   saveState();
@@ -2292,6 +2569,13 @@ function clearFacultyDuty() {
   }
   closeFacultyDutyModal();
   renderEvaluations();
+}
+
+function isPdfImportedDuty(duty) {
+  return Boolean(
+    duty &&
+      (duty.fromPdf || (Array.isArray(duty.details) && duty.details.length > 0)),
+  );
 }
 
 function renderExamDaysList(containerEl, daysList, today) {
@@ -2336,11 +2620,47 @@ function renderExamDaysList(containerEl, daysList, today) {
           </div>`
         : "";
 
+    const dutyDetails =
+      facultyDuty && Array.isArray(facultyDuty.details)
+        ? facultyDuty.details
+        : [];
+    const detailsToggleBtn =
+      dutyDetails.length > 0
+        ? `<button
+            type="button"
+            onclick="toggleSection('duty-details-${d.id}')"
+            class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-900 bg-white/80 hover:bg-white px-2 py-0.5 rounded border border-amber-300/70 shrink-0 transition-colors cursor-pointer"
+          >
+            <span>Details (${dutyDetails.length})</span>
+            <i id="duty-details-${d.id}-arrow" data-lucide="chevron-down" class="w-3 h-3 transform transition-transform"></i>
+          </button>`
+        : "";
+    const detailsListHtml =
+      dutyDetails.length > 0
+        ? `<div id="duty-details-${d.id}" class="hidden mt-1.5 space-y-1">
+            ${dutyDetails
+              .map(
+                (det) => `
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] bg-white px-2.5 py-1.5 rounded-lg border border-amber-200/80">
+                    <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+                      <span class="font-medium text-slate-900">${det.courseCode || "Course N/A"}</span>
+                      ${det.dept ? `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">${det.dept}</span>` : ""}
+                      ${det.room ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-100/70 text-amber-900 border border-amber-200">Room ${det.room}</span>` : ""}
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-500 shrink-0">${det.slot}</span>
+                  </div>`,
+              )
+              .join("")}
+          </div>`
+        : "";
+
     const facultyHtml = facultyDuty
       ? `<div class="mt-2 pt-2 border-t border-slate-200">
-          <div class="text-[11px] bg-amber-50 text-amber-900 px-2.5 py-1.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2">
+          <div class="text-[11px] bg-amber-50 text-amber-900 px-2.5 py-1.5 rounded-lg border border-amber-200 flex flex-wrap items-center justify-between gap-2">
             <span><strong>Faculty Duty:</strong> ${facultyDuty.count} ${facultyDuty.count === 1 ? "duty" : "duties"} — <span class="font-mono">${facultyDuty.slots.join(", ")}</span></span>
+            ${detailsToggleBtn}
           </div>
+          ${detailsListHtml}
         </div>`
       : "";
 
@@ -2356,9 +2676,11 @@ function renderExamDaysList(containerEl, daysList, today) {
           <button onclick="openStudentExamModal('${d.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 transition-colors">
             + Student Exam
           </button>
-          <button onclick="openFacultyDutyModal('${d.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors">
-            ${facultyDuty ? "Edit Duty" : "+ Faculty Duty"}
-          </button>
+          ${isPdfImportedDuty(facultyDuty)
+            ? ""
+            : `<button onclick="openFacultyDutyModal('${d.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors">
+                ${facultyDuty ? "Edit Duty" : "+ Faculty Duty"}
+              </button>`}
         </div>
       </div>
       ${studentHtml}
@@ -2403,6 +2725,7 @@ function getCombinedEvaluations() {
         subType: "Faculty Duty",
         desc: `${duty.count} ${duty.count === 1 ? "duty" : "duties"} — ${duty.slots.join(", ")}`,
         source: "faculty-duty",
+        fromPdf: isPdfImportedDuty(duty),
       });
     }
   });
@@ -2509,9 +2832,11 @@ function createEvaluationItem(ev, today) {
                 Remove
                </button>`
         : ev.source === "faculty-duty"
-          ? `<button onclick="openFacultyDutyModal('${ev.dayId}')" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
-                  Edit Duty
-                 </button>`
+          ? ev.fromPdf
+            ? ""
+            : `<button onclick="openFacultyDutyModal('${ev.dayId}')" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
+                    Edit Duty
+                   </button>`
           : `<button onclick="openEditEvalModal('${ev.id}', event)" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
                 Edit / Delete
                </button>`
