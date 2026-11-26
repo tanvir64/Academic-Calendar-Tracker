@@ -1302,7 +1302,17 @@ function renderCalendar() {
       if (item.isMakeup) {
         if (linkData && linkData.url) {
           const aliasText = linkData.alias || "Join Meeting";
-          meetingLinkHtml = `
+          meetingLinkHtml =
+            isPast || isDone
+              ? `
+            <div class="mt-2">
+              <button type="button" disabled class="inline-flex items-center gap-1 w-full justify-center text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 cursor-not-allowed opacity-75 truncate">
+                <i data-lucide="video-off" class="w-3 h-3 shrink-0"></i>
+                <span class="truncate">${aliasText}</span>
+              </button>
+            </div>
+          `
+              : `
             <div class="mt-2">
               <a href="${linkData.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 w-full justify-center text-[10px] font-bold text-amber-800 bg-amber-200 hover:bg-amber-300 px-2 py-0.5 rounded border border-amber-300 transition-colors truncate">
                 <i data-lucide="video" class="w-3 h-3 text-amber-700 shrink-0"></i>
@@ -1310,7 +1320,7 @@ function renderCalendar() {
               </a>
             </div>
           `;
-        } else if (!isPast) {
+        } else if (!isPast && !isDone) {
           meetingLinkHtml = `
             <div class="mt-2">
               <button onclick="openMeetingModal('${item.id}', '${item.month} ${item.dayNum}', event)" class="inline-flex items-center gap-1 w-full justify-center text-[10px] font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded border border-amber-300 transition-colors">
