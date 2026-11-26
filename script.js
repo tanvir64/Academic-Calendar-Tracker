@@ -1076,6 +1076,13 @@ function isTodayDate(dateStr) {
   return dateStr === `${yyyy}-${mm}-${dd}`;
 }
 
+function isClassOngoing(dateStr) {
+  if (!isTodayDate(dateStr) || isDatePassed(dateStr)) return false;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const startCutoff = new Date(y, m - 1, d, 8, 30, 0, 0);
+  return new Date() >= startCutoff;
+}
+
 function renderCalendar() {
   const container = document.getElementById("calendar-container");
   if (!container) return;
@@ -1230,7 +1237,7 @@ function renderCalendar() {
       }
       const isDone = completedClasses.has(item.id);
       const isPast = isDatePassed(item.dateStr);
-      const isOngoing = !isDone && !isPast && isTodayDate(item.dateStr);
+      const isOngoing = !isDone && !isPast && isClassOngoing(item.dateStr);
       const dayEvals = userEvaluations.filter((e) => e.dateId === item.id);
       const linkData = makeupMeetingLinks[item.id];
 
@@ -1513,7 +1520,7 @@ function renderDashboardTimeline() {
   ALL_CLASSES.forEach((item) => {
     const isPast = isDatePassed(item.dateStr);
     const isDone = completedClasses.has(item.id) || isPast;
-    const isOngoing = !isDone && isTodayDate(item.dateStr);
+    const isOngoing = !isDone && isClassOngoing(item.dateStr);
 
     const row = document.createElement("div");
     let isFirstPendingItem = false;
@@ -1751,7 +1758,7 @@ function renderDashboard() {
     ALL_CLASSES.forEach((c) => {
       const isPast = isDatePassed(c.dateStr);
       const isDone = completedClasses.has(c.id) || isPast;
-      const isOngoing = !isDone && isTodayDate(c.dateStr);
+      const isOngoing = !isDone && isClassOngoing(c.dateStr);
 
       const item = document.createElement("div");
       let isFirstPendingItem = false;
