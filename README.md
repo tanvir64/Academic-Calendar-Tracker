@@ -1,55 +1,62 @@
-# UIU Fall 2026 Academic Dashboard
+# UIU Fall 2026 Academic Dashboard & Tracker
 
-A responsive, cloud-synced academic schedule and progress management platform engineered specifically for the **United International University (UIU) Fall 2026** trimester. Designed to streamline multi-track class monitoring, assessment tracking, and holiday/event alerts, the platform automates completion states and provides real-time synchronization across devices.
+A responsive, cloud-synced academic schedule, assessment, and exam duty management platform built for the **United International University (UIU) Fall 2026** trimester. Designed to streamline multi-track class monitoring, custom assessments, mid/final exam planning, client-side invigilation PDF parsing, and academic event alerts, with real-time cross-device synchronization.
 
 ---
 
 ## ✨ Key Features
 
 ### 1. Multi-Track Schedule & Progress Tracking
-- **Dual-Track Architecture**: Supports **6 total tracks** simultaneously:
+- **Dual-Track Architecture**: Supports **6 tracks** simultaneously:
   - **4 Single-Day Tracks**: `SAT`, `SUN`, `TUE`, and `WED` (12 classes each).
   - **2 Paired Tracks**: `SAT/TUE` and `SUN/WED` (24 classes each).
-- **Dynamic Dual-Numbering**: Every calendar tile dynamically calculates and displays both its single-track sequence number (`#1–12`) and its paired-track sequence number (`#1–24`).
-- **Interactive Mini-Grids**: Visual block grids on the dashboard reflect individual class completion states (`1–12` and `1–24`) with hover tooltips detailing dates and statuses.
+- **Dashboard & Trackers**: Overall completion ring (`0–48` classes), regular vs. Thursday online makeup progress bars, custom assessment summary counts, per-track mini-grids (`1–12` and `1–24`), and a chronological class schedule timeline.
 
 ### 2. Intelligent Time-Based Auto-Completion
-- **4:30 PM BDT Cutoff Engine**: Automatically evaluates both regular and online makeup classes against **Bangladesh Standard Time (UTC+6)**. Once `4:30 PM` on the scheduled date passes, classes transition automatically from `Scheduled` to `Completed` and `Locked`.
-- **Live Background Sync**: Runs an automated 60-second background interval check so tiles and dashboard metrics update live without requiring a manual page reload.
-- **Immutable History**: Completed items are automatically locked to prevent accidental edits to historical academic records.
+- **4:30 PM BDT Cutoff Engine**: Evaluates regular classes, online makeup classes, exam days, and academic events against the `4:30 PM` (`16:30:00`) cutoff on each scheduled date, automatically transitioning past items to `Completed` and `Locked`.
+- **Immutable History**: Completed classes and past exams are locked from accidental edits, and completed online makeup **Join Meeting** links are automatically disabled.
 
 ### 3. Smart Navigation & Focus UX
-- **Auto-Collapsing Past Months**: Months that have concluded (e.g., October) automatically collapse into sleek summary accordions, keeping the workspace focused on active and upcoming schedules.
-- **Current Month Badge & Auto-Scroll**: Highlights the active month header with a `Current Month` indicator and smoothly scrolls to the active section (accounting for the persistent sticky navigation bar) upon load or tab switch.
-- **"Next Up" Visual Highlighting**: Both the Calendar Grid and the Dashboard Chronological Timeline pinpoint the immediate upcoming pending class using a pulsing amber ring, left accent border, and bouncing `Next Up` badge, automatically scrolling the timeline container to center on it.
-- **Dynamic Browser Tab Badge**: Displays the live count of remaining pending classes directly in the browser tab title (e.g., `(18) UIU Fall 2026 Academic Dashboard`).
+- **Gliding Circular Pill Navbar**: 4-tab navigation (`Calendar`, `Trackers`, `Assessments`, `Events`) with an animated gliding indicator circle, icon lift, and high-contrast red notification badges for upcoming assessments and urgent events (`< 3 days`).
+- **Ongoing vs. Next Up Highlighting**: Distinguishes today's active class as **Ongoing** (violet accent) and the next upcoming class as **Next Up** (blue accent) across both the Calendar grid and Trackers timeline.
+- **Auto-Scroll & Back to Top**:
+  - **Calendar**: Smoothly scrolls to today's class tile (or the Next Up tile / current month fallback) on load and tab switch.
+  - **Events**: Sticky category filter bar and auto-scroll past completed events to the first pending event.
+  - **Back to Top**: Centered floating button appears after scrolling down (`> 240px`).
+- **Auto-Collapsing Past Months**: Concluded months (e.g., October) collapse automatically into summary accordions.
 
-### 4. Assessments, Events & Online Makeup Management
-- **Assessment Tracking**: Attach custom assessments (Quizzes, Presentations, Assignment Deadlines, Updates) with course codes directly to scheduled class dates.
-- **Urgent Academic Warnings**: Displays high-visibility warning banners for non-holiday academic events occurring within `< 3 days`.
-- **Online Makeup Integration**: Dedicated styling and quick-access meeting link storage (`Join Meeting` / `+ Add Link`) for rescheduled online makeup sessions.
+### 4. Integrated Exam Cards, Assessments & PDF Schedule Parsing
+- **Exam Window Cards in Calendar**: **Mid-Term Exam (`Dec 5 – Dec 12`)** and **Final Exam (`Jan 25 – Feb 1`)** appear chronologically in the Calendar grid with a distinct rose accent, live countdown, and a **Plan** button that jumps directly to and expands the corresponding exam section in Assessments.
+- **Assessment Filtering & History**: Filter by type (`Class Test`, `Presentation`, `Assignment Deadline`, `Update`, `Exam/Duty`) plus a collapsible **Filtering options** panel (`Status` and `Urgency`). Expired/completed assessments collapse automatically at the bottom of the list.
+- **Student Exams & Faculty Duties**: Add Student Exam entries or Faculty Exam Duties per exam day (enforcing duty count = selected slot checkboxes), automatically mirrored into the Assessments list under `Exam/Duty`. Exam sections auto-expand within 10 days of the exam start date.
+- **Client-Side Invigilation PDF Parser (PDF.js)**: Upload a UIU **My Invigilations** PDF in the Mid-Term or Final exam section to parse `Exam Date`, `Exam Time`, `Course Code`, `Dept.` (`BSCSE`/`BSEEE`), and `Room #` in the browser—automatically setting duty counts and time slots, hiding manual `Edit Duty` for PDF-imported days, and displaying collapsible **Details (N)** per day card.
 
-### 5. Real-Time Cloud Sync (Firebase)
-- **8-Character Session Keys**: Syncs user-created assessments, custom meeting links, and completion states across browsers and devices via Firebase Realtime Database using lightweight 8-character session codes—no traditional account registration required.
+### 5. Academic Events & Online Makeup Management
+- **Important Events**: Filterable by `Academic`, `Exam`, `Payment`, and `Holiday`, with high-visibility warning banners for non-holiday events occurring within `< 3 days`.
+- **Online Makeup Links**: Store custom meeting URLs and display aliases (`+ Add Link` / `Join Meeting`) for Thursday online makeup sessions; links are disabled once the session is completed.
+
+### 6. Real-Time Cloud Sync (Firebase)
+- **Session Sync Codes**: Automatically generates a `FALL-2026-XXXX-XXXX` session code to sync class completions, event completions, exam completions, user evaluations, makeup meeting links, student exam entries, and faculty exam duties across devices via Firebase Realtime Database (`UIU_Calendar_263/sync_sessions/<SYNC_CODE>`).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Semantic HTML5, Vanilla JavaScript (ES6+), Tailwind CSS
-- **Icons**: Lucide Icons
-- **Backend / Database**: Firebase Realtime Database (Client SDK)
-- **Timezone & Date Logic**: Native JavaScript `Date` API calibrated for BDT (`16:30:00` cutoff)
+- **Frontend**: Semantic HTML5, Vanilla JavaScript (ES6+), Tailwind CSS (CDN), Custom CSS Variables (`styles.css`)
+- **Icons & Fonts**: Lucide Icons, Inter & JetBrains Mono (`tabular-nums`)
+- **PDF Parsing**: PDF.js (`v3.11.174` via CDN, coordinate-based client-side table extraction)
+- **Backend / Database**: Firebase Realtime Database (v9 Compat Client SDK)
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-├── index.html          # Main application layout, sticky header, modals, and tab views
-├── script.js           # Core logic: ALL_CLASSES dataset, auto-completion engine, Firebase sync, and DOM renderers
-├── style.css           # Custom utility overrides and animation helpers (if applicable)
-└── README.md           # Project documentation
+├── index.html          # Application layout, gliding navbar, tab views, and modals
+├── styles.css          # Graphite light theme variables, nav indicator, and tile/timeline styles
+├── script.js           # Datasets, auto-completion, PDF.js parser, Firebase sync, and renderers
+├── logo.png            # UIU header logo
+└── project_readme.md   # Project documentation
 ```
 
 ---
@@ -68,16 +75,10 @@ A responsive, cloud-synced academic schedule and progress management platform en
    ```
 
 2. **Configure Firebase**:
-   Open `script.js` and ensure your Firebase configuration object points to your Realtime Database instance:
+   Open `script.js` and point `firebaseConfig.databaseURL` to your Realtime Database instance:
    ```javascript
    const firebaseConfig = {
-     apiKey: "YOUR_API_KEY",
-     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-     databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-     projectId: "YOUR_PROJECT_ID",
-     storageBucket: "YOUR_PROJECT_ID.appspot.com",
-     messagingSenderId: "YOUR_SENDER_ID",
-     appId: "YOUR_APP_ID"
+     databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app/",
    };
    ```
 
@@ -89,11 +90,11 @@ A responsive, cloud-synced academic schedule and progress management platform en
 
 ---
 
-## 🔄 How Sync Keys Work
+## 🔄 How Sync Codes Work
 
-1. On first visit, the dashboard generates or prompts for an **8-character Sync Key**.
-2. All custom assessments and online makeup links are stored under `sessions/<SYNC_KEY>` in Firebase Realtime Database.
-3. Enter the same 8-character key on another device to immediately pull and synchronize your academic progress.
+1. On first visit, the app generates a unique `FALL-2026-XXXX-XXXX` sync code (accessible from **Sync devices** in the header).
+2. All progress, custom assessments, makeup links, student exams, and faculty duties are synced under `UIU_Calendar_263/sync_sessions/<SYNC_CODE>` in Firebase Realtime Database.
+3. Enter the same sync code on another device via **Sync devices → Connect** to synchronize your data immediately.
 
 ---
 
