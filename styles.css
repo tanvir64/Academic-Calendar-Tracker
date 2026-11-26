@@ -202,8 +202,37 @@ body.dark-glass header nav button .nav-label {
 
 body.dark-glass header nav button .nav-badge {
   position: absolute;
-  top: 6px;
-  right: calc(50% - 20px);
+  top: 10px;
+  right: calc(50% - 21px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background-color: var(--negative);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  border: 2px solid var(--bg-raised);
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+  pointer-events: none;
+  transition:
+    transform 320ms var(--ease-unslop),
+    border-color 180ms var(--ease-unslop);
+}
+
+@media (min-width: 768px) {
+  body.dark-glass header nav button .nav-badge {
+    top: 5px;
+  }
+}
+
+body.dark-glass header nav button .nav-badge.hidden {
+  display: none !important;
 }
 
 /* Active navigation tab (icon lifts into gliding #nav-pill-indicator circle) */
@@ -235,6 +264,14 @@ body.dark-glass header nav button.text-brand-700 .nav-label {
   transform: translate(-50%, 0) !important;
   color: var(--accent) !important;
   font-weight: 600 !important;
+}
+
+body.dark-glass header nav button.bg-white .nav-badge,
+body.dark-glass header nav button[class*="bg-indigo-500"] .nav-badge,
+body.dark-glass header nav button.font-bold .nav-badge,
+body.dark-glass header nav button.text-brand-700 .nav-badge {
+  transform: translateY(-22px);
+  border-color: var(--bg-deepest);
 }
 
 /* ==========================================================================
@@ -397,6 +434,39 @@ body.dark-glass #first-pending-calendar-tile {
   animation: none !important;
 }
 
+/* 5. Today's "Ongoing" class tile (distinct violet accent) */
+body.dark-glass #calendar-container #ongoing-calendar-tile {
+  background-color: #f5f3ff !important;
+  background-image: none !important;
+  border: 1px solid rgba(124, 58, 237, 0.38) !important;
+  border-left: 3px solid #7c3aed !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+body.dark-glass #calendar-container #ongoing-calendar-tile:hover {
+  background-color: #ede9fe !important;
+  border-color: rgba(124, 58, 237, 0.6) !important;
+  border-left-color: #7c3aed !important;
+}
+
+body.dark-glass #calendar-container .ongoing-badge {
+  background-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+body.dark-glass #calendar-container .ongoing-status-pill {
+  background-color: #f5f3ff !important;
+  color: #6d28d9 !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+}
+
+body.dark-glass #calendar-container .nextup-status-pill {
+  background-color: var(--bg-active-tint) !important;
+  color: var(--accent) !important;
+  border: 1px solid rgba(2, 132, 199, 0.3) !important;
+}
+
 /* Tile typography */
 body.dark-glass #calendar-container .text-emerald-900,
 body.dark-glass #calendar-container .text-amber-950,
@@ -537,6 +607,20 @@ body.dark-glass #schedule-timeline #first-pending-timeline-item {
   border-left: 3px solid var(--accent) !important;
   box-shadow: none !important;
   animation: none !important;
+}
+
+body.dark-glass #schedule-timeline #ongoing-timeline-item {
+  background-color: #f5f3ff !important;
+  background-image: none !important;
+  border: 1px solid rgba(124, 58, 237, 0.38) !important;
+  border-left: 3px solid #7c3aed !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+body.dark-glass #schedule-timeline .ongoing-badge {
+  background-color: #7c3aed !important;
+  color: #ffffff !important;
 }
 
 body.dark-glass #schedule-timeline .bg-white,

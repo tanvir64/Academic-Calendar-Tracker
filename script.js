@@ -954,7 +954,7 @@ function switchPage(page) {
 
   if (page === "calendar") {
     renderCalendar();
-    scrollToCurrentMonth();
+    scrollToCurrentDay();
   } else if (page === "dashboard") {
     renderDashboard();
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -1066,6 +1066,14 @@ function isDatePassed(dateStr) {
   targetCutoff.setHours(16, 30, 0, 0);
 
   return now >= targetCutoff;
+}
+
+function isTodayDate(dateStr) {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return dateStr === `${yyyy}-${mm}-${dd}`;
 }
 
 function renderCalendar() {
@@ -1195,29 +1203,37 @@ function renderCalendar() {
     filteredClasses.forEach((item) => {
       const isDone = completedClasses.has(item.id);
       const isPast = isDatePassed(item.dateStr);
+      const isOngoing = !isDone && !isPast && isTodayDate(item.dateStr);
       const dayEvals = userEvaluations.filter((e) => e.dateId === item.id);
       const linkData = makeupMeetingLinks[item.id];
 
-      // Check if this card is the very first upcoming/pending class
+      // Check if this card is the very first upcoming/pending class (after today's ongoing class)
       let isFirstPendingItem = false;
-      if (!isDone && !isPast && !foundFirstPendingInCalendar) {
+      if (!isDone && !isPast && !isOngoing && !foundFirstPendingInCalendar) {
         isFirstPendingItem = true;
         foundFirstPendingInCalendar = true;
       }
 
       const card = document.createElement("div");
-      if (isFirstPendingItem) {
+      if (isTodayDate(item.dateStr)) {
+        card.dataset.today = "true";
+      }
+      if (isOngoing) {
+        card.id = "ongoing-calendar-tile";
+      } else if (isFirstPendingItem) {
         card.id = "first-pending-calendar-tile";
       }
 
-      // Accent border for first pending item
+      // Accent border for ongoing / first pending item
       let borderStyle = isDone
         ? "border-emerald-500 bg-emerald-50/80 shadow-sm"
-        : isFirstPendingItem
-          ? "border-blue-400 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 shadow-sm border-l-4 border-l-blue-500"
-          : item.isMakeup
-            ? "border-amber-300 bg-amber-50/60 hover:bg-amber-100/70"
-            : "border-slate-200 bg-white hover:border-brand-300 hover:shadow-sm";
+        : isOngoing
+          ? "border-violet-400 bg-violet-50/60 shadow-sm border-l-4 border-l-violet-600"
+          : isFirstPendingItem
+            ? "border-blue-400 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 shadow-sm border-l-4 border-l-blue-500"
+            : item.isMakeup
+              ? "border-amber-300 bg-amber-50/60 hover:bg-amber-100/70"
+              : "border-slate-200 bg-white hover:border-brand-300 hover:shadow-sm";
 
       card.className = `relative flex flex-col justify-between p-3 sm:p-3.5 rounded-xl border transition-colors select-none min-w-0 ${borderStyle}`;
 
@@ -1282,8 +1298,8 @@ function renderCalendar() {
         <div>
           <div class="flex items-center justify-between gap-1.5 mb-2 flex-wrap">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="text-xs font-semibold ${isDone ? "text-emerald-900" : isFirstPendingItem ? "text-amber-950 font-semibold" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
-              ${isFirstPendingItem ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500 text-white">Next up</span>` : ``}
+              <span class="text-xs font-semibold ${isDone ? "text-emerald-900" : isOngoing ? "text-violet-950 font-semibold" : isFirstPendingItem ? "text-amber-950 font-semibold" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
+              ${isOngoing ? `<span class="ongoing-badge px-1.5 py-0.5 rounded text-[10px] font-medium text-white">Ongoing</span>` : isFirstPendingItem ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500 text-white">Next up</span>` : ``}
             </div>
             <span class="text-[10px] font-medium px-2 py-0.5 rounded-md ${trackBadgeClass} shrink-0">${item.dayName}</span>
           </div>
@@ -1319,9 +1335,11 @@ function renderCalendar() {
         }
           ${isPast || isDone
           ? `<span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200">Completed</span>`
-          : isFirstPendingItem
-            ? `<span class="text-[10px] font-extrabold text-amber-800 bg-amber-200 px-2 py-0.5 rounded-md border border-amber-300">Next Up</span>`
-            : `<span class="text-[10px] font-semibold text-slate-400">Scheduled</span>`
+          : isOngoing
+            ? `<span class="ongoing-status-pill text-[10px] font-semibold px-2 py-0.5 rounded-md">Ongoing</span>`
+            : isFirstPendingItem
+              ? `<span class="nextup-status-pill text-[10px] font-semibold px-2 py-0.5 rounded-md">Next Up</span>`
+              : `<span class="text-[10px] font-semibold text-slate-400">Scheduled</span>`
         }
         </div>
       `;
@@ -1338,7 +1356,7 @@ function renderCalendar() {
   lucide.createIcons();
 }
 
-function scrollToCurrentMonth() {
+function scrollToCurrentDay() {
   const months = ["OCT", "NOV", "DEC", "JAN"];
   const monthDates = {
     OCT: { year: 2026, monthIndex: 9 },
@@ -1356,24 +1374,27 @@ function scrollToCurrentMonth() {
     return obj.year === currentYear && obj.monthIndex === currentMonthIdx;
   });
 
-  if (currentMonthKey) {
-    const targetEl = document.getElementById(`month-card-${currentMonthKey}`);
-    if (targetEl) {
-      setTimeout(() => {
-        // Calculate sticky header offset position
-        const headerEl = document.querySelector("header");
-        const headerOffset =
-          (headerEl ? headerEl.getBoundingClientRect().height : 80) + 12;
-        const elementPosition = targetEl.getBoundingClientRect().top;
-        const offsetPosition =
-          elementPosition + window.pageYOffset - headerOffset;
+  // Prefer today's class tile, then the next upcoming class tile, then the current month card
+  const targetEl =
+    document.querySelector('#calendar-container [data-today="true"]') ||
+    document.getElementById("ongoing-calendar-tile") ||
+    document.getElementById("first-pending-calendar-tile") ||
+    (currentMonthKey ? document.getElementById(`month-card-${currentMonthKey}`) : null);
 
-        window.scrollTo({
-          top: Math.max(0, offsetPosition),
-          behavior: "smooth",
-        });
-      }, 100);
-    }
+  if (targetEl) {
+    setTimeout(() => {
+      const headerEl = document.querySelector("header");
+      const headerOffset =
+        (headerEl ? headerEl.getBoundingClientRect().height : 80) + 16;
+      const elementPosition = targetEl.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: "smooth",
+      });
+    }, 100);
   }
 }
 
@@ -1402,37 +1423,43 @@ function renderDashboardTimeline() {
   ALL_CLASSES.forEach((item) => {
     const isPast = isDatePassed(item.dateStr);
     const isDone = completedClasses.has(item.id) || isPast;
+    const isOngoing = !isDone && isTodayDate(item.dateStr);
 
     const row = document.createElement("div");
     let isFirstPendingItem = false;
 
-    // Check if this is the first upcoming/pending item
-    if (!isDone && !foundFirstPending) {
+    // Check if this is the first upcoming/pending item (after today's ongoing class)
+    if (isOngoing) {
+      row.id = "ongoing-timeline-item";
+    } else if (!isDone && !foundFirstPending) {
       row.id = "first-pending-timeline-item";
       foundFirstPending = true;
       isFirstPendingItem = true;
     }
 
-    // Modern styling: Apply subtle pulse, ring border, and accent gradient to the first pending class
     row.className = `p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-semibold transition-all ${isDone
         ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
-        : isFirstPendingItem
-          ? "bg-gradient-to-r from-amber-50/90 via-white to-white border-amber-300 text-slate-900 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/50 animate-pulse border-l-4 border-l-amber-500"
-          : "bg-white border-slate-200 text-slate-800 shadow-2xs"
+        : isOngoing
+          ? "bg-violet-50/70 border-violet-300 text-slate-900 border-l-4 border-l-violet-600"
+          : isFirstPendingItem
+            ? "bg-gradient-to-r from-amber-50/90 via-white to-white border-amber-300 text-slate-900 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/50 animate-pulse border-l-4 border-l-amber-500"
+            : "bg-white border-slate-200 text-slate-800 shadow-2xs"
       }`;
 
     row.innerHTML = `
       <div class="flex items-center gap-3">
-        <span class="font-extrabold w-14 ${isDone ? "text-emerald-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
-        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-slate-100 border border-slate-200 text-slate-700"}">${item.dayName}</span>
+        <span class="font-extrabold w-14 ${isDone ? "text-emerald-950" : isOngoing ? "text-violet-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${item.month} ${item.dayNum}</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isOngoing ? "bg-violet-100 border border-violet-300 text-violet-900" : isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-slate-100 border border-slate-200 text-slate-700"}">${item.dayName}</span>
         <span class="text-slate-500">Track: <strong>${item.track}</strong> (#${item.classNo})</span>
       </div>
       <div>
         ${isDone
         ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Completed</span>`
-        : isFirstPendingItem
-          ? `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-white shadow-xs animate-bounce">Next Up</span>`
-          : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Scheduled</span>`
+        : isOngoing
+          ? `<span class="ongoing-badge px-2.5 py-0.5 rounded-md text-[10px] font-bold text-white">Ongoing</span>`
+          : isFirstPendingItem
+            ? `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-white shadow-xs">Next Up</span>`
+            : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Scheduled</span>`
       }
       </div>
     `;
@@ -1441,19 +1468,17 @@ function renderDashboardTimeline() {
   });
 
   // Automatically scroll the timeline container to the highlighted item
-  if (foundFirstPending) {
-    setTimeout(() => {
-      const firstPending = document.getElementById(
-        "first-pending-timeline-item",
-      );
-      if (firstPending && container) {
-        container.scrollTo({
-          top: firstPending.offsetTop - container.offsetTop - 8,
-          behavior: "smooth",
-        });
-      }
-    }, 100);
-  }
+  setTimeout(() => {
+    const targetItem =
+      document.getElementById("ongoing-timeline-item") ||
+      document.getElementById("first-pending-timeline-item");
+    if (targetItem && container) {
+      container.scrollTo({
+        top: targetItem.offsetTop - container.offsetTop - 8,
+        behavior: "smooth",
+      });
+    }
+  }, 100);
 }
 
 function renderDashboard() {
@@ -1636,12 +1661,15 @@ function renderDashboard() {
     ALL_CLASSES.forEach((c) => {
       const isPast = isDatePassed(c.dateStr);
       const isDone = completedClasses.has(c.id) || isPast;
+      const isOngoing = !isDone && isTodayDate(c.dateStr);
 
       const item = document.createElement("div");
       let isFirstPendingItem = false;
 
-      // Identify and flag the first upcoming/pending item
-      if (!isDone && !foundFirstPending) {
+      // Identify and flag today's ongoing class and the first upcoming/pending item
+      if (isOngoing) {
+        item.id = "ongoing-timeline-item";
+      } else if (!isDone && !foundFirstPending) {
         item.id = "first-pending-timeline-item";
         foundFirstPending = true;
         isFirstPendingItem = true;
@@ -1649,23 +1677,27 @@ function renderDashboard() {
 
       item.className = `flex items-center justify-between p-2.5 rounded-xl border text-xs transition-all ${isDone
           ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
-          : isFirstPendingItem
-            ? "bg-gradient-to-r from-amber-50/90 via-white to-white border-amber-300 text-slate-900 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/50 animate-pulse border-l-4 border-l-amber-500"
-            : "bg-slate-50 border-slate-200 text-slate-800"
+          : isOngoing
+            ? "bg-violet-50/70 border-violet-300 text-slate-900 border-l-4 border-l-violet-600"
+            : isFirstPendingItem
+              ? "bg-gradient-to-r from-amber-50/90 via-white to-white border-amber-300 text-slate-900 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/50 border-l-4 border-l-amber-500"
+              : "bg-slate-50 border-slate-200 text-slate-800"
         }`;
 
       item.innerHTML = `
         <div class="flex items-center gap-3">
-          <span class="font-extrabold w-16 ${isDone ? "text-emerald-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${c.month} ${c.dayNum}</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-white border border-slate-200 text-slate-700"}">${c.dayName}</span>
+          <span class="font-extrabold w-16 ${isDone ? "text-emerald-950" : isOngoing ? "text-violet-950" : isFirstPendingItem ? "text-amber-950 font-black" : "text-slate-900"}">${c.month} ${c.dayNum}</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isOngoing ? "bg-violet-100 border border-violet-300 text-violet-900" : isFirstPendingItem ? "bg-amber-100 border border-amber-300 text-amber-900" : "bg-white border border-slate-200 text-slate-700"}">${c.dayName}</span>
           <span class="text-slate-600 font-medium">Track: <strong class="text-slate-800">${c.track}</strong> (#${c.classNo})</span>
         </div>
         <div>
           ${isDone
           ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Completed</span>`
-          : isFirstPendingItem
-            ? `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-white shadow-xs animate-bounce">Next Up</span>`
-            : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Scheduled</span>`
+          : isOngoing
+            ? `<span class="ongoing-badge px-2.5 py-0.5 rounded-md text-[10px] font-bold text-white">Ongoing</span>`
+            : isFirstPendingItem
+              ? `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-white shadow-xs">Next Up</span>`
+              : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Scheduled</span>`
         }
         </div>
       `;
@@ -1673,20 +1705,18 @@ function renderDashboard() {
       timeline.appendChild(item);
     });
 
-    // Auto-scroll the timeline container to the first pending item
-    if (foundFirstPending) {
-      setTimeout(() => {
-        const firstPending = document.getElementById(
-          "first-pending-timeline-item",
-        );
-        if (firstPending && timeline) {
-          timeline.scrollTo({
-            top: firstPending.offsetTop - timeline.offsetTop - 8,
-            behavior: "smooth",
-          });
-        }
-      }, 100);
-    }
+    // Auto-scroll the timeline container to today's ongoing class or the first pending item
+    setTimeout(() => {
+      const targetItem =
+        document.getElementById("ongoing-timeline-item") ||
+        document.getElementById("first-pending-timeline-item");
+      if (targetItem && timeline) {
+        timeline.scrollTo({
+          top: targetItem.offsetTop - timeline.offsetTop - 8,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
   }
 
   const makeupList = document.getElementById("makeup-schedule-list");
@@ -2947,7 +2977,7 @@ window.addEventListener(
     updateNavigation();
     setupFirebaseSync();
     if (currentPage === "calendar") {
-      scrollToCurrentMonth();
+      scrollToCurrentDay();
     }
     lucide.createIcons();
   },
