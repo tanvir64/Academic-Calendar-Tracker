@@ -13,7 +13,7 @@ A responsive, cloud-synced academic schedule, assessment, and exam duty manageme
 - **Dashboard & Trackers**: Overall completion ring (`0–48` classes), regular vs. Thursday online makeup progress bars, custom assessment summary counts, per-track mini-grids (`1–12` and `1–24`), and a chronological class schedule timeline.
 
 ### 2. Intelligent Time-Based Auto-Completion
-- **4:30 PM BDT Cutoff Engine**: Evaluates regular classes, online makeup classes, exam days, and academic events against the `4:30 PM` (`16:30:00`) cutoff on each scheduled date, automatically transitioning past items to `Completed` and `Locked`.
+- **4:30 PM BDT Cutoff**: Evaluates regular classes, online makeup classes, exam days, and academic events against the `4:30 PM` (`16:30:00`) cutoff on each scheduled date, automatically transitioning past items to `Completed` and `Locked`.
 - **Immutable History**: Completed classes and past exams are locked from accidental edits, and completed online makeup **Join Meeting** links are automatically disabled.
 
 ### 3. Smart Navigation & Focus UX
@@ -21,9 +21,7 @@ A responsive, cloud-synced academic schedule, assessment, and exam duty manageme
 - **Ongoing vs. Next Up Highlighting**: Distinguishes today's active class as **Ongoing** (violet accent) and the next upcoming class as **Next Up** (blue accent) across both the Calendar grid and Trackers timeline.
 - **Auto-Scroll & Back to Top**:
   - **Calendar**: Smoothly scrolls to today's class tile (or the Next Up tile / current month fallback) on load and tab switch.
-  - **Events**: Sticky category filter bar and auto-scroll past completed events to the first pending event.
-  - **Back to Top**: Centered floating button appears after scrolling down (`> 240px`).
-- **Auto-Collapsing Past Months**: Concluded months (e.g., October) collapse automatically into summary accordions.
+- **Auto-Collapsing Past Months**: Concluded months collapse automatically into summary accordions.
 
 ### 4. Integrated Exam Cards, Assessments & PDF Schedule Parsing
 - **Exam Window Cards in Calendar**: **Mid-Term Exam (`Dec 5 – Dec 12`)** and **Final Exam (`Jan 25 – Feb 1`)** appear chronologically in the Calendar grid with a distinct rose accent, live countdown, and a **Plan** button that jumps directly to and expands the corresponding exam section in Assessments.
