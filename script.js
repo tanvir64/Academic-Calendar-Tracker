@@ -2410,6 +2410,119 @@ function getCombinedEvaluations() {
   return combined;
 }
 
+function createEvaluationItem(ev, today) {
+  const isPast = isDatePassed(ev.dateStr);
+  const targetDate = new Date(ev.dateStr);
+  targetDate.setHours(0, 0, 0, 0);
+  const diffTime = targetDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  let urgencyBadge = "";
+  let urgencyClass = "";
+
+  if (isPast) {
+    urgencyClass =
+      "bg-rose-100 text-rose-800 border-rose-300 font-extrabold";
+    urgencyBadge = "Expired / Completed";
+  } else if (diffDays === 0) {
+    urgencyClass =
+      "bg-rose-100 text-rose-800 border-rose-300 animate-pulse font-extrabold";
+    urgencyBadge = "Due Today!";
+  } else if (diffDays < 7) {
+    urgencyClass = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
+    urgencyBadge = `${diffDays} Days Left (Urgent)`;
+  } else if (diffDays <= 14) {
+    urgencyClass = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
+    urgencyBadge = `${diffDays} Days Left (Prepare)`;
+  } else {
+    urgencyClass =
+      "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold";
+    urgencyBadge = `${diffDays} Days Left (Plan)`;
+  }
+
+  let typeBadge = "bg-rose-50 text-rose-700 border-rose-200";
+  let iconName = "file-text";
+  let iconBg =
+    "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm shadow-rose-500/30";
+
+  if (ev.type === "Presentation") {
+    typeBadge = "bg-indigo-50 text-indigo-700 border-indigo-200";
+    iconName = "presentation";
+    iconBg =
+      "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm shadow-indigo-500/30";
+  } else if (ev.type === "Assignment Deadline") {
+    typeBadge = "bg-cyan-50 text-cyan-700 border-cyan-200";
+    iconName = "clipboard";
+    iconBg =
+      "bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-sm shadow-cyan-500/30";
+  } else if (ev.type === "Update") {
+    typeBadge = "bg-amber-50 text-amber-700 border-amber-200";
+    iconName = "alert-circle";
+    iconBg =
+      "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm shadow-amber-500/30";
+  } else if (ev.type === "Exam/Duty") {
+    if (ev.source === "faculty-duty") {
+      typeBadge = "bg-amber-50 text-amber-800 border-amber-200";
+      iconName = "briefcase";
+      iconBg = "bg-amber-600 text-white";
+    } else {
+      typeBadge = "bg-violet-50 text-violet-700 border-violet-200";
+      iconName = "graduation-cap";
+      iconBg = "bg-violet-600 text-white";
+    }
+  }
+
+  const item = document.createElement("div");
+  item.className = `p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none ${isPast
+      ? "bg-rose-50/40 border-rose-200 opacity-80"
+      : "bg-white border-slate-200 hover:border-brand-300 shadow-sm"
+    }`;
+
+  item.innerHTML = `
+    <div class="flex items-start gap-3.5">
+      <div class="p-2.5 rounded-xl ${isPast ? "bg-rose-600 text-white" : iconBg} shrink-0 mt-0.5 sm:mt-0">
+        <i data-lucide="${iconName}" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-1">
+          <span class="text-xs font-extrabold ${isPast ? "text-rose-950" : "text-slate-900"}">${ev.code}</span>
+          ${ev.title ? `<span class="text-xs text-slate-500 font-medium">— ${ev.title}</span>` : ""}
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${typeBadge}">${ev.subType || ev.type}</span>
+        </div>
+        <h3 class="text-sm font-bold ${isPast ? "text-slate-700 line-through" : "text-slate-900"}">${ev.desc}</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Upcoming Date: <strong>${ev.dateStr}</strong></p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
+      <span class="px-2.5 py-1 rounded-xl border text-xs ${urgencyClass}">
+        ${urgencyBadge}
+      </span>
+
+      <div class="flex items-center gap-2">
+        ${isPast
+      ? `<button disabled class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed">
+                Completed
+               </button>`
+      : ev.source === "student-exam"
+        ? `<button onclick="removeStudentExam('${ev.dayId}', '${ev.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors">
+                Remove
+               </button>`
+        : ev.source === "faculty-duty"
+          ? `<button onclick="openFacultyDutyModal('${ev.dayId}')" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
+                  Edit Duty
+                 </button>`
+          : `<button onclick="openEditEvalModal('${ev.id}', event)" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
+                Edit / Delete
+               </button>`
+    }
+      </div>
+    </div>
+  `;
+
+  return item;
+}
+
 function renderEvaluations() {
   const container = document.getElementById("evaluations-list");
   const midContainer = document.getElementById("midterm-exam-list");
@@ -2481,120 +2594,50 @@ function renderEvaluations() {
     return;
   }
 
-  filtered
-    .sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr))
-    .forEach((ev) => {
-      const isPast = isDatePassed(ev.dateStr);
-      const targetDate = new Date(ev.dateStr);
-      targetDate.setHours(0, 0, 0, 0);
-      const diffTime = targetDate - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const sorted = [...filtered].sort(
+    (a, b) => new Date(a.dateStr) - new Date(b.dateStr),
+  );
+  const upcomingItems = sorted.filter((ev) => !isDatePassed(ev.dateStr));
+  const pastItems = sorted.filter((ev) => isDatePassed(ev.dateStr));
 
-      let urgencyBadge = "";
-      let urgencyClass = "";
+  upcomingItems.forEach((ev) => {
+    container.appendChild(createEvaluationItem(ev, today));
+  });
 
-      if (isPast) {
-        urgencyClass =
-          "bg-rose-100 text-rose-800 border-rose-300 font-extrabold";
-        urgencyBadge = "Expired / Completed";
-      } else if (diffDays === 0) {
-        urgencyClass =
-          "bg-rose-100 text-rose-800 border-rose-300 animate-pulse font-extrabold";
-        urgencyBadge = "Due Today!";
-      } else if (diffDays < 7) {
-        urgencyClass = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
-        urgencyBadge = `${diffDays} Days Left (Urgent)`;
-      } else if (diffDays <= 14) {
-        urgencyClass = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
-        urgencyBadge = `${diffDays} Days Left (Prepare)`;
-      } else {
-        urgencyClass =
-          "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold";
-        urgencyBadge = `${diffDays} Days Left (Plan)`;
-      }
+  if (pastItems.length > 0) {
+    const startExpanded = currentEvalStatusFilter === "COMPLETED";
+    const pastWrapper = document.createElement("div");
+    pastWrapper.className = "glass-card rounded-2xl overflow-hidden mt-3";
 
-      let typeBadge = "bg-rose-50 text-rose-700 border-rose-200";
-      let iconName = "file-text";
-      let iconBg =
-        "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm shadow-rose-500/30";
-
-      if (ev.type === "Presentation") {
-        typeBadge = "bg-indigo-50 text-indigo-700 border-indigo-200";
-        iconName = "presentation";
-        iconBg =
-          "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm shadow-indigo-500/30";
-      } else if (ev.type === "Assignment Deadline") {
-        typeBadge = "bg-cyan-50 text-cyan-700 border-cyan-200";
-        iconName = "clipboard";
-        iconBg =
-          "bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-sm shadow-cyan-500/30";
-      } else if (ev.type === "Update") {
-        typeBadge = "bg-amber-50 text-amber-700 border-amber-200";
-        iconName = "alert-circle";
-        iconBg =
-          "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm shadow-amber-500/30";
-      } else if (ev.type === "Exam/Duty") {
-        if (ev.source === "faculty-duty") {
-          typeBadge = "bg-amber-50 text-amber-800 border-amber-200";
-          iconName = "briefcase";
-          iconBg = "bg-amber-600 text-white";
-        } else {
-          typeBadge = "bg-violet-50 text-violet-700 border-violet-200";
-          iconName = "graduation-cap";
-          iconBg = "bg-violet-600 text-white";
-        }
-      }
-
-      const item = document.createElement("div");
-      item.className = `p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none ${isPast
-          ? "bg-rose-50/40 border-rose-200 opacity-80"
-          : "bg-white border-slate-200 hover:border-brand-300 shadow-sm"
-        }`;
-
-      item.innerHTML = `
-        <div class="flex items-start gap-3.5">
-          <div class="p-2.5 rounded-xl ${isPast ? "bg-rose-600 text-white" : iconBg} shrink-0 mt-0.5 sm:mt-0">
-            <i data-lucide="${iconName}" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-2 mb-1">
-              <span class="text-xs font-extrabold ${isPast ? "text-rose-950" : "text-slate-900"}">${ev.code}</span>
-              ${ev.title ? `<span class="text-xs text-slate-500 font-medium">— ${ev.title}</span>` : ""}
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${typeBadge}">${ev.subType || ev.type}</span>
-            </div>
-            <h3 class="text-sm font-bold ${isPast ? "text-slate-700 line-through" : "text-slate-900"}">${ev.desc}</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Upcoming Date: <strong>${ev.dateStr}</strong></p>
-          </div>
+    pastWrapper.innerHTML = `
+      <button
+        type="button"
+        onclick="toggleSection('past-evaluations-section')"
+        class="w-full px-4 py-3 cursor-pointer bg-[#f4f4f5] text-[#525252] flex items-center justify-between font-medium text-xs hover:bg-[#e4e4e7] hover:text-[#171717] transition-colors duration-150"
+      >
+        <div class="flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-[#737373]"></i>
+          <span>Completed / expired assessments</span>
+          <span class="font-mono tabular-nums text-[11px] bg-[#ffffff] text-[#525252] border border-[#171717]/[0.08] px-2 py-0.5 rounded-md">${pastItems.length}</span>
         </div>
+        <i
+          id="past-evaluations-section-arrow"
+          data-lucide="chevron-down"
+          class="w-4 h-4 transform transition-transform text-[#737373] ${startExpanded ? "rotate-180" : ""}"
+        ></i>
+      </button>
+      <div
+        id="past-evaluations-section"
+        class="p-4 space-y-2 border-t border-[#171717]/[0.08] bg-[#fafafa] ${startExpanded ? "" : "hidden"}"
+      ></div>
+    `;
 
-        <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
-          <span class="px-2.5 py-1 rounded-xl border text-xs ${urgencyClass}">
-            ${urgencyBadge}
-          </span>
-
-          <div class="flex items-center gap-2">
-            ${isPast
-          ? `<button disabled class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed">
-                    Completed
-                   </button>`
-          : ev.source === "student-exam"
-            ? `<button onclick="removeStudentExam('${ev.dayId}', '${ev.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors">
-                    Remove
-                   </button>`
-            : ev.source === "faculty-duty"
-              ? `<button onclick="openFacultyDutyModal('${ev.dayId}')" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
-                      Edit Duty
-                     </button>`
-              : `<button onclick="openEditEvalModal('${ev.id}', event)" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors">
-                    Edit / Delete
-                   </button>`
-        }
-          </div>
-        </div>
-      `;
-
-      container.appendChild(item);
+    container.appendChild(pastWrapper);
+    const pastList = pastWrapper.querySelector("#past-evaluations-section");
+    pastItems.forEach((ev) => {
+      pastList.appendChild(createEvaluationItem(ev, today));
     });
+  }
 
   lucide.createIcons();
 }
